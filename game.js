@@ -1249,7 +1249,7 @@ function updateLandingMovement() {
 
     // Collision Check
     const dist = m.position.distanceTo(landingRocket.position);
-    if (dist < 4) {
+    if (dist < 10) {
       lives--;
       scene.remove(m);
       meteors.splice(i, 1);
@@ -1259,7 +1259,7 @@ function updateLandingMovement() {
   }
 
   // Victory: Reached Moon Surface
-  if (landingRocket.position.z < -1950) {
+  if (landingRocket.position.z < -1800) {
     endGame(true);
   }
 
