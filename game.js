@@ -136,7 +136,7 @@ function showMenu() {
   uiResult.style.display = "none";
 
   if (roverGroup) {
-    roverGroup.position.set(0, 5, 0); // start a bit high
+    roverGroup.position.set(0, 5, 1800); // zpos 1800, xpos 0
     roverGroup.rotation.set(0, 0, 0);
   }
 }
@@ -575,7 +575,7 @@ function createRover() {
   roverGroup.add(roverSpotlight);
   roverGroup.add(roverSpotlight.target);
 
-  roverGroup.position.set(0, 5, 0);
+  roverGroup.position.set(0, 5, 1800); // zpos 1800, xpos 0
   scene.add(roverGroup);
 
   // Navigation Arrow above rover
@@ -807,7 +807,7 @@ function createMoonRock(x, z) {
 
 function generateObstaclesAndPath() {
   const numCheckpoints = 9;
-  const distInterval = 1800 / numCheckpoints;
+  const distInterval = 3600 / numCheckpoints;
 
   // Create exactly 3 of each, shuffle them
   let types = [
@@ -821,8 +821,8 @@ function generateObstaclesAndPath() {
   if (terrainMesh) terrainMesh.updateMatrixWorld(true);
 
   for (let i = 1; i <= numCheckpoints; i++) {
-    const zPos = -distInterval * i;
-    const xPos = -100 + Math.random() * 200; // Sabit zig-zag (rastgele değil)
+    const zPos = 1800 - distInterval * i;
+    const xPos = -200 + Math.random() * 400; // Sabit zig-zag (rastgele değil)
 
     const typeStr = types[i - 1];
     let objData;
@@ -853,10 +853,9 @@ function generateObstaclesAndPath() {
     const dot = document.createElement("div");
     dot.className = "minimap-dot debris-dot";
 
-    // Map bounds: Z goes from 0 to -1800 (y-axis on map 90% to 10%)
-    // X goes from -200 to 200 (x-axis on map 10% to 90%)
-    const mapY = 90 - (Math.abs(zPos) / 1800) * 80;
-    const mapX = 50 + (xPos / 200) * 40;
+    // Updated mapping to match rover's updateMinimap system (1500x4000 terrain centered at 0)
+    const mapY = (zPos + 2000) / 40;
+    const mapX = (xPos + 750) / 15;
     dot.style.top = `${mapY}%`;
     dot.style.left = `${mapX}%`;
     document.getElementById("minimap-grid").appendChild(dot);
