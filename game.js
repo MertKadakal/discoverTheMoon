@@ -130,7 +130,13 @@ function showQuizModal(message, showOptions = false) {
 
 function showMenu() {
   isGameRunning = false;
-  uiMenu.style.display = "block";
+  if (gameMode === 'rover') {
+    uiMenu.style.display = "block";
+    document.getElementById("landing-game-menu").style.display = "none";
+  } else {
+    uiMenu.style.display = "none";
+    document.getElementById("landing-game-menu").style.display = "block";
+  }
   uiTutorial.style.display = "none";
   uiQuizModal.style.display = "none";
   uiResult.style.display = "none";
@@ -258,6 +264,14 @@ function backToHub() {
   document.getElementById('game-hub-menu').style.display = 'block';
 }
 window.backToHub = backToHub;
+
+function quitGame() {
+  isGameRunning = false;
+  document.getElementById("gameplay-hud").style.display = "none";
+  document.getElementById("landing-hud").style.display = "none";
+  showMenu();
+}
+window.quitGame = quitGame;
 
 function endGame(won) {
   isGameRunning = false;
