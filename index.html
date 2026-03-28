@@ -660,7 +660,7 @@
   <!-- Firebase Setup -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDc86-g-z0NOnUH8zjAEdxXU7xYeiPC9QU",
@@ -692,6 +692,26 @@
         console.error("Firebase'e Veri eklenirken hata oluştu: ", e);
       }
     }
+
+    window.skorlariGetir = async function () {
+      try {
+        const q = query(collection(db, "skorlar"), orderBy("skor", "desc"), limit(20));
+        const querySnapshot = await getDocs(q);
+        const tablo = [];
+        querySnapshot.forEach((doc) => {
+          const veri = doc.data();
+          tablo.push({
+            name: veri.isim || "İsimsiz",
+            score: veri.skor || 0,
+            date: veri.date && typeof veri.date.toDate === 'function' ? veri.date.toDate().toLocaleDateString('tr-TR') : ""
+          });
+        });
+        return tablo;
+      } catch (e) {
+        console.error("Firebase'den veriler çekilirken hata oluştu: ", e);
+        return [];
+      }
+    };
   </script>
 </body>
 

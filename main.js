@@ -403,33 +403,28 @@ function showResults() {
   document.getElementById('resultMessage').textContent = message;
 }
 
-/**
- * saveAndShowLeaderboard — Saves score and displays rankings
- */
-function saveAndShowLeaderboard() {
-  // Load existing leaderboard from localStorage
-  let leaderboard = JSON.parse(localStorage.getItem('moonQuizLeaderboard') || '[]');
+async function saveAndShowLeaderboard() {
+  document.getElementById('leaderboard').style.display = 'block';
+  document.getElementById('leaderboardList').innerHTML = '<p style="text-align:center;color:var(--text-muted);">Skorboard yükleniyor...</p>';
 
-  // Fire off score to Firebase
+  // Fire off score to Firebase and wait for it to finish
   if(window.skorKaydet) {
-    window.skorKaydet(playerName, currentScore);
+    try {
+      await window.skorKaydet(playerName, currentScore);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  // Add current player's score
-  leaderboard.push({ name: playerName, score: currentScore, date: new Date().toLocaleDateString('tr-TR') });
-
-  // Sort by score (highest first), then by date (most recent first)
-  leaderboard.sort((a, b) => b.score - a.score || new Date(b.date) - new Date(a.date));
-
-  // Keep only top 20
-  leaderboard = leaderboard.slice(0, 20);
-
-  // Save back
-  localStorage.setItem('moonQuizLeaderboard', JSON.stringify(leaderboard));
+  let leaderboard = [];
+  if(window.skorlariGetir) {
+    leaderboard = await window.skorlariGetir();
+  } else {
+    leaderboard.push({ name: playerName, score: currentScore, date: new Date().toLocaleDateString('tr-TR') });
+  }
 
   // Render leaderboard
   renderLeaderboard(leaderboard);
-  document.getElementById('leaderboard').style.display = 'block';
 
   // Scroll to leaderboard
   document.getElementById('leaderboard').scrollIntoView({ behavior: 'smooth', block: 'start' });
