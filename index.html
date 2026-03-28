@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Ay ve Uzay hakkında her şeyi keşfedin - quiz, oyun ve bilgi bölümleriyle eğlenceli bir uzay yolculuğu!" />
+  <title>Ay'ı Keşfet | Uzay ve Ay Dünyası</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+
+  <!-- ===================== STAR CANVAS BACKGROUND ===================== -->
+  <canvas id="starCanvas"></canvas>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav id="navbar">
+    <div class="nav-brand">
+      <span class="moon-icon">🌕</span>
+      <span class="brand-text">AY'I KEŞFET</span>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menüyü Aç">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home" class="nav-link active" data-section="home">Ana Sayfa</a></li>
+      <li><a href="#info" class="nav-link" data-section="info">Bilgilendirme</a></li>
+      <li><a href="#quiz" class="nav-link" data-section="quiz">Bilgi Yarışması</a></li>
+      <li><a href="#game" class="nav-link" data-section="game">Oyun</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===================== HERO / HOME SECTION ===================== -->
+  <section id="home" class="section active-section">
+    <div class="hero-container">
+      <div class="moon-hero-wrapper">
+        <div class="moon-sphere">
+          <div class="moon-glow"></div>
+          <div class="crater crater-1"></div>
+          <div class="crater crater-2"></div>
+          <div class="crater crater-3"></div>
+          <div class="crater crater-4"></div>
+          <div class="crater crater-5"></div>
+        </div>
+      </div>
+      <div class="hero-content">
+        <p class="hero-subtitle">Uzayın Gizemli Yolculuğu</p>
+        <h1 class="hero-title">Ay'ı <span class="highlight">Keşfet</span></h1>
+        <p class="hero-desc">
+          Ay'ın sırlarını öğren, bilgi yarışmasında kendini test et ve uzay maceralarına atıl.
+          Türkiye'nin uzay programından Ay'ın oluşumuna kadar her şey burada seni bekliyor.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="showSection('info')">Keşfetmeye Başla</button>
+          <button class="btn btn-outline" onclick="showSection('quiz')">Quize Katıl</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">384,400</span>
+            <span class="stat-label">km Uzaklık</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">4.5B</span>
+            <span class="stat-label">Yıl Yaşında</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">12</span>
+            <span class="stat-label">İnsan Ay'da Yürüdü</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+  </section>
+
+  <!-- ===================== INFORMATION SECTION ===================== -->
+  <section id="info" class="section">
+    <div class="section-header">
+      <span class="section-tag">📚 Bilgi Merkezi</span>
+      <h2 class="section-title">Ay ve Uzay Hakkında</h2>
+      <p class="section-desc">Ay'ın gizemli dünyasını, tarihini ve Türkiye'nin uzay programını keşfedin.</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="info-tabs">
+      <button class="tab-btn active" data-tab="moon-basics">🌕 Ay Hakkında</button>
+      <button class="tab-btn" data-tab="moon-history">🚀 Tarihsel Keşifler</button>
+      <button class="tab-btn" data-tab="turkey-space">🇹🇷 Türkiye Uzay Programı</button>
+    </div>
+
+    <!-- TAB: Moon Basics -->
+    <div class="tab-content active" id="moon-basics">
+      <div class="info-grid">
+
+        <div class="info-card featured">
+          <div class="card-icon">🌑</div>
+          <h3>Ay'ın Oluşumu</h3>
+          <p>
+            Ay, yaklaşık <strong>4.5 milyar yıl önce</strong> dev bir çarpışma sonucu oluştu.
+            Theia adı verilen Mars büyüklüğündeki bir cismin Dünya ile çarpışmasıyla kopan parçalar
+            zamanla birleşerek Ay'ı meydana getirdi. Bu teoriye <em>"Büyük Çarpışma Hipotezi"</em> denir.
+          </p>
+          <div class="card-fact">
+            <span>💡 İlginç Bilgi:</span> Ay her yıl Dünya'dan yaklaşık 3.8 cm uzaklaşmaktadır!
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">📐</div>
+          <h3>Ay'ın Boyutları</h3>
+          <ul class="info-list">
+            <li><span class="list-icon">🔵</span> Çap: <strong>3,474 km</strong></li>
+            <li><span class="list-icon">🔵</span> Kütle: Dünya'nın %1.2'si</li>
+            <li><span class="list-icon">🔵</span> Yerçekimi: Dünya'nın 1/6'sı</li>
+            <li><span class="list-icon">🔵</span> Yüzey Sıcaklığı: -173°C ile +127°C</li>
+            <li><span class="list-icon">🔵</span> Dünya'ya Uzaklık: ~384,400 km</li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">🏔️</div>
+          <h3>Ay'ın Yapısı</h3>
+          <p>Ay katmanlı bir yapıya sahiptir:</p>
+          <div class="structure-list">
+            <div class="structure-item">
+              <div class="structure-bar" style="width:30%; background: #8B6914;"></div>
+              <span>Kabuk (~50 km)</span>
+            </div>
+            <div class="structure-item">
+              <div class="structure-bar" style="width:60%; background: #5A3E2B;"></div>
+              <span>Manto (~1,300 km)</span>
+            </div>
+            <div class="structure-item">
+              <div class="structure-bar" style="width:20%; background: #C0C0C0;"></div>
+              <span>Çekirdek (~350 km)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">🌊</div>
+          <h3>Gelgit Etkisi</h3>
+          <p>
+            Ay'ın yerçekimi, Dünya'nın okyanuslarında <strong>gelgit</strong> oluşturur.
+            Ay'ın yörüngesi Dünya'yı 27.3 günde tamamlar. Ay, her zaman Dünya'ya aynı yüzünü gösterir —
+            bu olaya <em>eş zamanlı dönüş</em> denir.
+          </p>
+          <div class="card-fact">
+            <span>🌙 Ay Evreleri:</span> Yeni Ay → Hilal → İlk Dördün → Dolunay ve geri
+          </div>
+        </div>
+
+        <div class="info-card featured">
+          <div class="card-icon">⭐</div>
+          <h3>Ay Hakkında İlginç Gerçekler</h3>
+          <div class="facts-grid">
+            <div class="fact-item">
+              <span class="fact-num">01</span>
+              <p>Ay'da hava yoktur, bu yüzden sesler duyulmaz ve gökyüzü her zaman siyah görünür.</p>
+            </div>
+            <div class="fact-item">
+              <span class="fact-num">02</span>
+              <p>Ay üzerindeki ayak izleri milyonlarca yıl boyunca kalacak çünkü rüzgar yok.</p>
+            </div>
+            <div class="fact-item">
+              <span class="fact-num">03</span>
+              <p>Ay, Güneş'ten yaklaşık 400 kat küçük ama Dünya'ya 400 kat daha yakın — bu yüzden Güneş tutulması
+                mümkün!</p>
+            </div>
+            <div class="fact-item">
+              <span class="fact-num">04</span>
+              <p>Ay'ın yüzeyi <em>regolith</em> adı verilen ince toz tabakasıyla kaplıdır.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">💧</div>
+          <h3>Ay'da Su Var Mı?</h3>
+          <p>
+            Evet! NASA'nın keşifleri, Ay'ın kutup bölgelerindeki <strong>derin kraterlerde</strong>
+            buz halinde su bulunduğunu ortaya koydu. 2009'da LCROSS görevi,
+            Ay'ın güney kutbuna kasıtlı çarparak buhar halinde su tespit etti.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: Moon History -->
+    <div class="tab-content" id="moon-history">
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-dot">1609</div>
+          <div class="timeline-card">
+            <h3>🔭 Galileo'nun Gözlemleri</h3>
+            <p>
+              Galileo Galilei, geliştirdiği teleskobu Ay'a çevirerek kraterler, dağlar
+              ve geniş düzlükler gibi yüzey özelliklerini ilk kez ayrıntılı biçimde gözlemledi.
+              Bu keşif, Ay'ın mükemmel bir küre olmadığını kanıtladı.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">1959</div>
+          <div class="timeline-card">
+            <h3>🛸 Luna 1 — İlk Uzay Aracı</h3>
+            <p>
+              Sovyetlerin Luna 1 uzay aracı, Ay'dan geçen ilk insan yapımı nesne oldu.
+              Luna 2 ise aynı yıl Ay yüzeyine çarptı ve güneş rüzgarını keşfetti.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">1969</div>
+          <div class="timeline-card highlight-card">
+            <h3>👨‍🚀 Apollo 11 — İnsanlığın Büyük Adımı</h3>
+            <p>
+              <strong>20 Temmuz 1969</strong> — Neil Armstrong ve Buzz Aldrin, Apollo 11
+              göreviyle Ay'a ayak basan ilk insanlar oldu. Armstrong'un ünlü sözü:
+              <em>"Bu benim için küçük bir adım, insanlık için dev bir sıçramadır."</em>
+            </p>
+            <div class="card-fact">
+              🌍 600 milyon insan bu tarihi anı televizyondan izledi!
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">1972</div>
+          <div class="timeline-card">
+            <h3>🏁 Apollo Programının Sonu</h3>
+            <p>
+              Apollo 17 görevi, insanın Ay'a son ziyaretini gerçekleştirdi.
+              Toplam 12 astronot Ay yüzeyinde yürüdü ve 382 kilogram kaya örneği Dünya'ya getirildi.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">1990</div>
+          <div class="timeline-card">
+            <h3>🇯🇵 Japonya'nın Hiten Uydusu</h3>
+            <p>
+              Japonya'nın ISAS ajansı, Hiten uydusunu Ay yörüngesine yerleştirerek
+              Ay araştırmalarında yeni bir dönem başlattı. Bu, Asia'dan gerçekleştirilen
+              ilk Ay görevi oldu.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">2008</div>
+          <div class="timeline-card">
+            <h3>🇮🇳 Chandrayaan-1 — Su Keşfi</h3>
+            <p>
+              Hindistan'ın ilk Ay orbiter'ı Chandrayaan-1, Ay'ın yüzeyinde
+              su molekülleri keşfetti. Bu keşif, Ay biliminde devrim yarattı
+              ve gelecek görevlerin önünü açtı.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">2019</div>
+          <div class="timeline-card">
+            <h3>🇨🇳 Chang'e 4 — Ay'ın Karanlık Yüzü</h3>
+            <p>
+              Çin'in Chang'e 4 görevi, Ay'ın insanlığın hiç görmediği karanlık yüzüne
+              indi. Bu tarihi ilk, insanlık tarihine altın harflerle yazıldı.
+            </p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">2025+</div>
+          <div class="timeline-card highlight-card">
+            <h3>🚀 Artemis Programı — Geri Dönüş</h3>
+            <p>
+              NASA'nın Artemis programı, insanları tekrar Ay'a göndermeyi planlıyor.
+              Bu kez ilk kadın ve ilk siyahi astronot Ay'a ayak basacak.
+              Amacın ötesinde, Mars'a gidiş için bir <strong>üs kurulması</strong> hedeflenmektedir.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: Turkey Space -->
+    <div class="tab-content" id="turkey-space">
+      <div class="turkey-hero">
+        <div class="turkey-flag-badge">🇹🇷</div>
+        <h2>Türkiye Ulusal Uzay Programı</h2>
+        <p>Türkiye, uzay çağına güçlü bir atılımla adım atıyor.</p>
+      </div>
+
+      <div class="info-grid">
+
+        <div class="info-card featured">
+          <div class="card-icon">🏛️</div>
+          <h3>Türkiye Uzay Ajansı (TUA)</h3>
+          <p>
+            <strong>Türkiye Uzay Ajansı (TUA)</strong>, 13 Aralık 2018'de kuruldu.
+            TUA, Türkiye'nin uzay alanındaki politikalarını belirlemek,
+            ulusal uzay programını yönetmek ve uluslararası iş birliği sağlamak
+            amacıyla kurulmuştur. Merkezi Ankara'dadır.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">🌙</div>
+          <h3>Milli Uzay Programı Hedefleri</h3>
+          <ul class="info-list">
+            <li><span class="list-icon">🎯</span> 2023: Uzaya fırlatma kapasitesi</li>
+            <li><span class="list-icon">🎯</span> 2023: Ay'a görev planlaması</li>
+            <li><span class="list-icon">🎯</span> 2028: Türk astronot uzaya gönderme</li>
+            <li><span class="list-icon">🎯</span> 2033: Ay'a iniş misyonu</li>
+            <li><span class="list-icon">🎯</span> Uzay teknolojisinde yerlilik oranı artırma</li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">🛰️</div>
+          <h3>Türkiye'nin Uyduları</h3>
+          <p>Türkiye, uzay teknolojisinde önemli adımlar attı:</p>
+          <ul class="info-list">
+            <li><span class="list-icon">🛰️</span> <strong>Türksat serisi</strong> — Haberleşme uyduları</li>
+            <li><span class="list-icon">🛰️</span> <strong>Göktürk-1 & 2</strong> — Gözlem uyduları</li>
+            <li><span class="list-icon">🛰️</span> <strong>İMECE</strong> — Yerli gözlem uydusu (2023)</li>
+            <li><span class="list-icon">🛰️</span> <strong>BİLSAT</strong> — Bilim uydusu</li>
+          </ul>
+        </div>
+
+        <div class="info-card featured">
+          <div class="card-icon">🚀</div>
+          <h3>Türkiye'nin Ay Misyonu</h3>
+          <p>
+            Türkiye, <strong>2028 yılında</strong> Ay'a bir uzay aracı göndermeyi hedefliyor.
+            Bu misyon kapsamında:
+          </p>
+          <div class="mission-steps">
+            <div class="mission-step">
+              <span class="step-num">1</span>
+              <div>
+                <strong>Fırlatma Araçları</strong>
+                <p>Yerli roket teknolojisi geliştirilmektedir (SORS - Sonda Roketi)</p>
+              </div>
+            </div>
+            <div class="mission-step">
+              <span class="step-num">2</span>
+              <div>
+                <strong>ROKETSAN Katkıları</strong>
+                <p>Türk savunma firması ROKETSAN, uzay fırlatma sistemleri geliştiriyor</p>
+              </div>
+            </div>
+            <div class="mission-step">
+              <span class="step-num">3</span>
+              <div>
+                <strong>Uluslararası İş Birliği</strong>
+                <p>ESA, NASA ve diğer uzay ajanslarıyla ortak çalışmalar yürütülüyor</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">👨‍🚀</div>
+          <h3>Türk Astronot Programı</h3>
+          <p>
+            Türkiye, <strong>2023 yılında</strong> ilk Türk astronot adaylarını seçti.
+            Seçim sürecinde binlerce kişi başvurdu. Alper Gezeravcı,
+            <strong>Ocak 2024'te</strong> Uluslararası Uzay İstasyonu'na giderek
+            <em>uzaya çıkan ilk Türk</em> oldu!
+          </p>
+          <div class="card-fact">
+            🌟 Alper Gezeravcı 14 gün boyunca UUİ'de görev yaptı!
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon">🏭</div>
+          <h3>Yerli Uzay Teknolojisi</h3>
+          <p>
+            Türkiye, uzay teknolojisinde yerlilik oranını artırma hedefiyle çalışıyor:
+          </p>
+          <ul class="info-list">
+            <li><span class="list-icon">⚙️</span> <strong>ASELSAN</strong> — Uzay elektroniği</li>
+            <li><span class="list-icon">⚙️</span> <strong>TAI</strong> — Havacılık ve uzay sanayii</li>
+            <li><span class="list-icon">⚙️</span> <strong>TÜBİTAK</strong> — Araştırma ve geliştirme</li>
+            <li><span class="list-icon">⚙️</span> <strong>STM</strong> — Sistem teknolojileri</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== QUIZ SECTION ===================== -->
+  <section id="quiz" class="section">
+    <div class="section-header">
+      <span class="section-tag">🧠 Bilgi Yarışması</span>
+      <h2 class="section-title">Uzay Bilgi Testi</h2>
+      <p class="section-desc">10 soruluk Ay ve Uzay quizine katıl, liderlik tablosunda yerini al!</p>
+    </div>
+
+    <!-- Quiz Start Screen -->
+    <div class="quiz-start" id="quizStart">
+      <div class="quiz-start-card">
+        <div class="quiz-rocket">🚀</div>
+        <h2>Quize Hazır mısın?</h2>
+        <p>10 soru — Ay, Uzay, Ay görevleri ve Türkiye'nin Uzay Programı hakkında</p>
+        <div class="quiz-rules">
+          <div class="rule-item"><span>⏱️</span> Her soruya zaman sınırı yok</div>
+          <div class="rule-item"><span>✅</span> Her doğru cevap 10 puan</div>
+          <div class="rule-item"><span>🏆</span> Liderlik tablosuna adını yaz</div>
+        </div>
+        <input type="text" id="playerNameInput" class="name-input" placeholder="Kullanıcı adını gir..."
+          maxlength="20" />
+        <button class="btn btn-primary" id="startQuizBtn" onclick="startQuiz()">Quize Başla 🚀</button>
+      </div>
+    </div>
+
+    <!-- Quiz Game Area -->
+    <div class="quiz-game" id="quizGame" style="display:none;">
+      <div class="quiz-header">
+        <div class="quiz-progress-info">
+          <span id="questionCounter">Soru 1 / 10</span>
+        </div>
+        <div class="quiz-score-display">
+          Puan: <span id="currentScore">0</span>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar" style="width:10%"></div>
+      </div>
+      <div class="question-card" id="questionCard">
+        <div class="question-number" id="questionNumber">01</div>
+        <h3 class="question-text" id="questionText">Soru yükleniyor...</h3>
+        <div class="options-grid" id="optionsGrid">
+          <!-- Options injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Results Screen -->
+    <div class="quiz-results" id="quizResults" style="display:none;">
+      <div class="results-card">
+        <div class="result-emoji" id="resultEmoji">🏆</div>
+        <h2 id="resultTitle">Tebrikler!</h2>
+        <div class="score-display">
+          <span id="finalScore">0</span>
+          <span class="score-total">/ 100</span>
+        </div>
+        <p id="resultMessage">Harika bir performans!</p>
+        <button class="btn btn-primary" onclick="saveAndShowLeaderboard()">Skoru Kaydet & Liderlik Tablosu</button>
+        <button class="btn btn-outline" onclick="restartQuiz()">Tekrar Oyna</button>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="leaderboard" id="leaderboard" style="display:none;">
+        <h3>🏆 Liderlik Tablosu</h3>
+        <div class="leaderboard-list" id="leaderboardList">
+          <!-- Rankings injected by JS -->
+        </div>
+        <button class="btn btn-outline" onclick="restartQuiz()" style="margin-top:1.5rem;">Tekrar Oyna</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== GAMES SECTION ===================== -->
+  <section id="games" class="section">
+    <div id="game-ui-layer">
+      <!-- Game Hub Menu -->
+      <div id="game-hub-menu" class="game-overlay-panel">
+        <h2 class="orbitron-title">Oyun Merkezi</h2>
+        <p>Hangi göreve atılmak istersin, kaptan?</p>
+        <div class="hub-options">
+          <button class="btn btn-primary btn-glow" onclick="selectGame('rover')">
+            🚜 Roverla Topla Roketi Kaçırma!!
+          </button>
+          <button class="btn btn-accent btn-glow" onclick="selectGame('landing')" style="margin-top:1rem;">
+            🚀 Aya İniş Yap Moncuğu Kurtar
+          </button>
+        </div>
+      </div>
+
+      <div id="ui-warning"
+        style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 20px; border-radius: 10px; font-family: Arial; text-align: center;">
+        ENGELİ ÇÖZMEDEN GEÇEMEZSİN!
+      </div>
+
+      <!-- Game Main Menu (Rover) -->
+      <div id="game-main-menu" class="game-overlay-panel" style="display:none;">
+        <h2 class="orbitron-title">Rover Görevi</h2>
+        <p>Roket fırlatılmadan önce tüm parçaları topla! Zamanın kısıtlı.</p>
+
+        <div class="customization-panel">
+          <label for="playerName">Kayıtlı İsim:</label>
+          <input type="text" id="playerName" placeholder="Kaşif adını gir..." maxlength="15" />
+
+          <label for="roverColor">Rover Rengi:</label>
+          <input type="color" id="roverColor" value="#ff00cc" />
+
+          <label for="roverAccessory" style="margin-top:0.5rem;">Aksesuar (Kozmetik):</label>
+          <select id="roverAccessory" class="game-select">
+            <option value="none">Yok (Sade)</option>
+            <option value="cowboy">Kovboy Şapkası 🤠</option>
+            <option value="cow">İnek Kostümü 🐮</option>
+            <option value="astronaut">Astronot Kaskı 🧑‍🚀</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary btn-glow" id="start3DGameBtn">Görevi Başlat</button>
+        <button class="btn btn-outline" onclick="backToHub()" style="margin-top:1rem;">Geri</button>
+      </div>
+
+      <!-- Landing Game Menu -->
+      <div id="landing-game-menu" class="game-overlay-panel" style="display:none;">
+        <h2 class="orbitron-title">Aya İniş</h2>
+        <p>Meteordan kaç, yakıtını koru ve Ay'da mahsur kalan <b>Moncuk</b>'u kurtar!</p>
+        <div class="stats-overview">
+          <p>❤️ 3 Can | ⚓ 3 Yanlış Hakkı</p>
+        </div>
+        <button class="btn btn-accent btn-glow" id="startLandingBtn">Uçuşu Başlat</button>
+        <button class="btn btn-outline" onclick="backToHub()" style="margin-top:1rem;">Geri</button>
+      </div>
+
+      <!-- Tutorial HUD -->
+      <div id="game-tutorial" class="game-overlay-panel" style="display:none;">
+        <h3>Nasıl Oynanır?</h3>
+        <div class="controls-grid">
+          <div class="key">W <span>İleri</span></div>
+          <div class="key">A <span>Sola Dön</span></div>
+          <div class="key">S <span>Geri</span></div>
+          <div class="key">D <span>Sağa Dön</span></div>
+        </div>
+        <p>Rokete ulaşmak için oklara doğru ilerle! Kraterlerden kaç, eğer çarparsan karşına sorular çıkacak.</p>
+        <button class="btn btn-outline" id="skipTutorialBtn">Eğitimi Geç ve Başla</button>
+      </div>
+
+      <!-- Gameplay HUD (Progress & Radar) -->
+      <div id="gameplay-hud" style="display:none;">
+        <!-- Top Left: Mini-Map -->
+        <div id="minimap-container" class="hud-minimap-container">
+          <div class="minimap-grid" id="minimap-grid">
+            <div id="minimap-rover" class="minimap-dot rover-dot"></div>
+            <div id="minimap-rocket" class="minimap-dot rocket-dot" style="top: 2%; left: 50%;"></div>
+            <!-- Debris dots injected via JS -->
+          </div>
+        </div>
+
+
+
+        <!-- Top Right: Progress Bar -->
+        <div id="progress-container" class="hud-progress-container">
+          <div class="progress-header">
+            <span id="progress-text-obs">Uzay Cisimleri Temizliği:</span>
+            <span id="progress-text">İlerleme: 0 / 0</span>
+          </div>
+          <div class="progress-track">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gameplay HUD (Landing Mission) -->
+      <div id="landing-hud" style="display:none; position: absolute; top: 20px; right: 20px; pointer-events: none;">
+        <div class="hud-progress-container">
+           <div class="progress-header" style="flex-direction: column; align-items: flex-end;">
+             <span>🚀 İniş Modu</span>
+             <span id="fuel-text">YAKIT: %100</span>
+             <span id="lives-text">❤️ 3 CAN</span>
+           </div>
+           <div class="progress-track" style="width: 200px;">
+             <div id="fuel-fill" class="progress-fill" style="width: 100%; background: #4a90d9;"></div>
+           </div>
+        </div>
+      </div>
+
+      <!-- Minimal Quiz Overlay (Only shown during obstacles) -->
+      <div id="quiz-modal" class="quiz-overlay" style="display:none;">
+        <p id="dialog-text" class="quiz-question-text">Soru buraya gelecek...</p>
+
+        <div class="dialog-options" id="dialog-options"></div>
+
+        <button class="btn btn-primary btn-glow" id="dialog-next-btn"
+          style="display:none; margin: 0 auto; margin-top: 1rem;">Devam Et</button>
+      </div>
+
+      <!-- Result Overlay (Win / Lose) -->
+      <div id="game-result-panel" class="game-overlay-panel" style="display:none;">
+        <h2 id="result-heading">Görev Tamamlandı!</h2>
+        <p id="result-description">Rokete ulaştın, Ay görevi başarıyla sonuçlandı.</p>
+        <button class="btn btn-primary" id="restartGameBtn">Tekrar Oyna</button>
+      </div>
+    </div>
+
+    <!-- Real 3D Canvas Container -->
+    <div id="game-canvas-container"></div>
+
+
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="moon-icon">🌕</span>
+        <span>Ay'ı Keşfet</span>
+      </div>
+      <p class="footer-text">Uzayın sonsuzluğunda bilginin ışığıyla yol bul.</p>
+      <div class="footer-links">
+        <a href="#home" onclick="showSection('home')">Ana Sayfa</a>
+        <a href="#info" onclick="showSection('info')">Bilgilendirme</a>
+        <a href="#quiz" onclick="showSection('quiz')">Quiz</a>
+        <a href="#games" onclick="showSection('games')">Oyunlar</a>
+        <button class="btn btn-primary" id="firebase" onclick="skorKaydet('mert', 1500)">Firebase</button>
+      </div>
+      <p class="footer-copy">© 2025 Ay'ı Keşfet — Uzay ve Ay Dünyası</p>
+    </div>
+
+  </footer>
+
+  <!-- Load Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="quiz-data.js"></script>
+  <script src="game.js"></script>
+  <script src="main.js"></script>
+
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDc86-g-z0NOnUH8zjAEdxXU7xYeiPC9QU",
+      authDomain: "discoverthemoon-34365.firebaseapp.com",
+      projectId: "discoverthemoon-34365",
+      storageBucket: "discoverthemoon-34365.firebasestorage.app",
+      messagingSenderId: "108438048144",
+      appId: "1:108438048144:web:c287d818c3c074c2177715"
+    };
+
+    // Firebase başlat
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Diğer (module dışı) kodların bu fonksiyona erişebilmesi için window nesnesine atıyoruz
+    window.skorKaydet = async function(oyuncuAdi, puan) {
+      try {
+        const docRef = await addDoc(collection(db, "skorlar"), {
+          username: oyuncuAdi,
+          score: puan,
+          date: new Date()
+        });
+        console.log("Skor başarıyla kaydedildi! Firebase Doküman ID: ", docRef.id);
+        
+        // Sağ üstte küçük bir bildirim çıkartılabilir
+        const btn = document.getElementById("firebase");
+        if(btn) btn.innerText = "Skorlar Kaydedildi!";
+      } catch (e) {
+        console.error("Firebase'e Veri eklenirken hata oluştu: ", e);
+      }
+    }
+  </script>
+</body>
+
+</html>
