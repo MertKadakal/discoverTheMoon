@@ -666,5 +666,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Distribute Quiz Questions into info tabs
+  const moonBasicsGrid = document.querySelector('#moon-basics .info-grid');
+  const turkeySpaceGrid = document.querySelector('#turkey-space .info-grid');
+  const moonHistoryTimeline = document.querySelector('#moon-history .timeline');
+
+  if (typeof QUIZ_QUESTIONS !== 'undefined') {
+    QUIZ_QUESTIONS.forEach((q, i) => {
+      const qText = q.question.toLowerCase();
+      const correctAnswer = q.options[q.correct];
+
+      let category = 'basics';
+      if (qText.includes('türkiye') || qText.includes('tua') || qText.includes('alper') || qText.includes('türk')) {
+        category = 'turkey';
+      } else if (qText.includes('apollo') || qText.includes('luna') || qText.includes('chang') || qText.includes('artemis') || qText.includes('astronot') || qText.includes('galileo') || qText.includes('hiten') || qText.includes('keşif') || qText.includes('araç') || qText.includes('insan') || qText.includes('sovyet')) {
+        category = 'history';
+      }
+
+      if (category === 'history') {
+        const div = document.createElement('div');
+        div.className = 'timeline-item';
+        div.innerHTML = `
+          <div class="timeline-dot" style="background:var(--color-primary)">?</div>
+          <div class="timeline-card">
+            <h3>💡 Quiz Bilgisi</h3>
+            <p><strong>Soru:</strong> ${q.question}</p>
+            <div class="card-fact" style="margin-top:0.5rem; background: rgba(0, 200, 83, 0.1); border-color: rgba(0, 200, 83, 0.3);">
+              <span>✅ Cevap:</span> ${correctAnswer}
+            </div>
+          </div>
+        `;
+        if (moonHistoryTimeline) moonHistoryTimeline.appendChild(div);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'info-card';
+        div.innerHTML = `
+          <div class="card-icon">💡</div>
+          <h3>Quiz Bilgisi</h3>
+          <p><strong>${q.question}</strong></p>
+          <div class="card-fact" style="margin-top:0.5rem; background: rgba(0, 200, 83, 0.1); border-color: rgba(0, 200, 83, 0.3);">
+            <span>✅ Cevap:</span> ${correctAnswer}
+          </div>
+        `;
+        if (category === 'turkey' && turkeySpaceGrid) turkeySpaceGrid.appendChild(div);
+        if (category === 'basics' && moonBasicsGrid) moonBasicsGrid.appendChild(div);
+      }
+    });
+  }
+
   console.log('🌕 Ay\'ı Keşfet — Uygulama başlatıldı!');
 });
