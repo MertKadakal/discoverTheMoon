@@ -13,6 +13,7 @@ let currentQuestionIndex = 0;
 let currentScore = 0;
 let playerName = '';
 let quizAnswered = false;
+let currentQuizQuestions = [];
 
 /* =====================================================
    STAR CANVAS — Animated starfield background
@@ -280,6 +281,10 @@ function startQuiz() {
   currentQuestionIndex = 0;
   currentScore = 0;
 
+  // Seçilecek rastgele 10 soru
+  const shuffled = [...QUIZ_QUESTIONS].sort(() => 0.5 - Math.random());
+  currentQuizQuestions = shuffled.slice(0, 10);
+
   // Show quiz game
   document.getElementById('quizStart').style.display = 'none';
   document.getElementById('quizGame').style.display = 'block';
@@ -292,17 +297,17 @@ function startQuiz() {
  * loadQuestion — Loads the current question into the UI
  */
 function loadQuestion() {
-  const q = QUIZ_QUESTIONS[currentQuestionIndex];
+  const q = currentQuizQuestions[currentQuestionIndex];
 
   // Update question number display
   const num = String(currentQuestionIndex + 1).padStart(2, '0');
   document.getElementById('questionNumber').textContent = num;
   document.getElementById('questionText').textContent = q.question;
-  document.getElementById('questionCounter').textContent = `Soru ${currentQuestionIndex + 1} / ${QUIZ_QUESTIONS.length}`;
+  document.getElementById('questionCounter').textContent = `Soru ${currentQuestionIndex + 1} / ${currentQuizQuestions.length}`;
   document.getElementById('currentScore').textContent = currentScore;
 
   // Update progress bar
-  const progress = ((currentQuestionIndex + 1) / QUIZ_QUESTIONS.length) * 100;
+  const progress = ((currentQuestionIndex + 1) / currentQuizQuestions.length) * 100;
   document.getElementById('progressBar').style.width = progress + '%';
 
   // Animate question card
@@ -339,7 +344,7 @@ function answerQuestion(selectedIndex) {
   if (quizAnswered) return;
   quizAnswered = true;
 
-  const q = QUIZ_QUESTIONS[currentQuestionIndex];
+  const q = currentQuizQuestions[currentQuestionIndex];
   const allBtns = document.querySelectorAll('.option-btn');
 
   // Disable all buttons
@@ -361,7 +366,7 @@ function answerQuestion(selectedIndex) {
   // Auto-advance after 1.5 seconds
   setTimeout(() => {
     currentQuestionIndex++;
-    if (currentQuestionIndex < QUIZ_QUESTIONS.length) {
+    if (currentQuestionIndex < currentQuizQuestions.length) {
       loadQuestion();
     } else {
       showResults();
@@ -404,6 +409,11 @@ function showResults() {
 function saveAndShowLeaderboard() {
   // Load existing leaderboard from localStorage
   let leaderboard = JSON.parse(localStorage.getItem('moonQuizLeaderboard') || '[]');
+
+  // Fire off score to Firebase
+  if(window.skorKaydet) {
+    window.skorKaydet(playerName, currentScore);
+  }
 
   // Add current player's score
   leaderboard.push({ name: playerName, score: currentScore, date: new Date().toLocaleDateString('tr-TR') });

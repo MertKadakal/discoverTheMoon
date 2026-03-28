@@ -558,7 +558,9 @@
       <!-- Gameplay HUD (Progress & Radar) -->
       <div id="gameplay-hud" style="display:none;">
         <div
-          style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); pointer-events: auto; z-index: 1000;">
+          style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); pointer-events: auto; z-index: 1000; display: flex; gap: 10px;">
+          <button class="btn btn-outline" style="padding: 8px 20px; font-size: 16px; background: rgba(0,0,0,0.5);"
+            id="fsBtnRover" onclick="toggleFullscreen()">Tam Ekran</button>
           <button class="btn btn-outline" style="padding: 8px 20px; font-size: 16px; background: rgba(0,0,0,0.5);"
             onclick="quitGame()">Oyundan Çık</button>
         </div>
@@ -587,7 +589,9 @@
 
       <!-- Gameplay HUD (Landing Mission) -->
       <div id="landing-hud" style="display:none; position: absolute; top: 20px; right: 20px; pointer-events: none;">
-        <div style="margin-bottom: 10px; pointer-events: auto; text-align: right;">
+        <div style="margin-bottom: 10px; pointer-events: auto; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
+            id="fsBtnLanding" onclick="toggleFullscreen()">Tam Ekran</button>
           <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
             onclick="quitGame()">Oyundan Çık</button>
         </div>
@@ -675,8 +679,8 @@
     window.skorKaydet = async function (oyuncuAdi, puan) {
       try {
         const docRef = await addDoc(collection(db, "skorlar"), {
-          username: oyuncuAdi,
-          score: puan,
+          isim: oyuncuAdi,
+          skor: puan,
           date: new Date()
         });
         console.log("Skor başarıyla kaydedildi! Firebase Doküman ID: ", docRef.id);

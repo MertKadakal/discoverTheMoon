@@ -273,6 +273,31 @@ function quitGame() {
 }
 window.quitGame = quitGame;
 
+function toggleFullscreen() {
+  const elem = document.getElementById("games");
+  if (!document.fullscreenElement) {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().catch(err => {
+        console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+window.toggleFullscreen = toggleFullscreen;
+
+document.addEventListener('fullscreenchange', () => {
+  const isFullscreen = !!document.fullscreenElement;
+  const text = isFullscreen ? "Küçült" : "Tam Ekran";
+  const btn1 = document.getElementById("fsBtnRover");
+  const btn2 = document.getElementById("fsBtnLanding");
+  if(btn1) btn1.innerText = text;
+  if(btn2) btn2.innerText = text;
+});
+
 function endGame(won) {
   isGameRunning = false;
   uiQuizModal.style.display = "none";
