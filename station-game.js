@@ -766,7 +766,6 @@ function buildWireGame(container) {
   let left = pairs.map(p => ({ w: p.a, id: p.a, c: p.color })).sort(() => Math.random() - 0.5);
   let right = pairs.map(p => ({ w: p.b, m: p.a, c: p.color })).sort(() => Math.random() - 0.5);
 
-  // KRİTİK GÜNCELLEME: 'user-select:none' eklendi
   container.innerHTML = `
     <div style="user-select: none; -webkit-user-select: none;"> 
       <p style="margin-bottom:10px;">Bağlantıları onarmak için kabloları EŞ ANLAMLI kelimelere sürükle:</p>
@@ -785,7 +784,6 @@ function buildWireGame(container) {
 
   left.forEach((n, i) => {
     let port = document.createElement("div");
-    // 'draggable="false"' ve 'pointer-events' kontrolü için stil güncellendi
     port.style = `display:flex; align-items:center; gap:10px; cursor:pointer;`;
     port.innerHTML = `<span style="color:#fff; width:60px; pointer-events:none;">${n.w}</span><div class="port-b" style="width:20px; height:20px; border-radius:50%; background:${n.c}; box-shadow: 0 0 10px ${n.c}"></div>`;
 
@@ -799,7 +797,7 @@ function buildWireGame(container) {
       currentLine.setAttribute("stroke-linecap", "round");
 
       let rect = port.querySelector('.port-b').getBoundingClientRect();
-      let pRect = svg.getBoundingClientRect(); // SVG'ye göre koordinat alıyoruz
+      let pRect = svg.getBoundingClientRect();
 
       let startX = rect.left + rect.width / 2 - pRect.left;
       let startY = rect.top + rect.height / 2 - pRect.top;
@@ -1022,11 +1020,8 @@ function buildBiologyGame(c) {
         // Başarı durumunda fonksiyonu çağır
         if (typeof closeStationModal === 'function') {
           setTimeout(() => closeStationModal(true), 500);
-        } else {
-          alert("Analiz Başarılı!");
         }
       } else {
-        // Hedefe girmediyse başlangıca dön (İsteğe bağlı)
         cell.style.left = "30px";
         cell.style.top = "100px";
       }
@@ -1070,7 +1065,7 @@ function buildSortingGame(c) {
   // İçeriği oluştur
   c.innerHTML = `
     <div class="sorting-game-wrapper" style="user-select:none; font-family:sans-serif; color:white;">
-        <p>KARGO DÜZENLEME: Gezegenleri <b>Güneş'e yakınlığa göre</b> (Dünya -> Mars -> Jüpiter) kutuya bırak!</p>
+        <p>KARGO DÜZENLEME: Gezegenleri <b>Güneş'e yakınlığa göre</b> kutuya bırak!</p>
         <div id="orbit-slot" style="height:100px; background:rgba(0,255,204,0.1); border:2px dashed #00ffcc; border-radius:10px; margin-bottom:20px; display:flex; align-items:center; justify-content:center; position:relative;">
             <div style="position:absolute; left:10px; width:30px; height:30px; background:yellow; border-radius:50%; box-shadow:0 0 15px yellow;"></div>
             <span id="slot-text">YÖRÜNGE KUTUSU</span>
@@ -1089,20 +1084,19 @@ function buildSortingGame(c) {
 
   items.forEach(el => {
     el.onmousedown = (e) => {
-      // Sürükleme başladığında bir kez hesapla (Donmayı önleyen kısım)
+      // Sürükleme başladığında bir kez hesapla
       const initialX = e.clientX;
       const initialY = e.clientY;
       const startRect = el.getBoundingClientRect();
 
       el.style.cursor = "grabbing";
       el.style.position = "fixed";
-      el.style.width = startRect.width + "px"; // Boyutun bozulmaması için
+      el.style.width = startRect.width + "px";
 
-      // Mouse Takip Fonksiyonu (Optimize edildi)
+      // Mouse Takip Fonksiyonu
       const move = (em) => {
         const dx = em.clientX - initialX;
         const dy = em.clientY - initialY;
-        // Transform kullanmak "top/left" değiştirmekten çok daha akıcıdır
         el.style.transform = `translate(${dx}px, ${dy}px)`;
       };
 
@@ -1118,14 +1112,12 @@ function buildSortingGame(c) {
           pRect.top < sRect.bottom && pRect.bottom > sRect.top) {
 
           order.push(el.dataset.name);
-          el.style.visibility = "hidden"; // display:none yerine düzen bozulmasın diye
+          el.style.visibility = "hidden";
 
           if (order.length === 3) {
             if (JSON.stringify(order) === JSON.stringify(["Dünya", "Mars", "Jüpiter"])) {
-              alert("Tebrikler! Yörünge dizildi."); // Buraya kendi success fonksiyonunu yaz
               if (typeof closeStationModal === 'function') closeStationModal(true);
             } else {
-              alert("Hatalı sıralama! Tekrar dene.");
               buildSortingGame(c); // Oyunu sıfırla
             }
           }

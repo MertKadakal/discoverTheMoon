@@ -2,12 +2,10 @@
  * quiz-data.js
  * =====================================================
  * Ay ve Uzay hakkında 10 soruluk quiz verisi.
- * Soruları düzenlemek için bu dosyayı güncelleyebilirsiniz.
  * =====================================================
  *
- * PLACEHOLDER: Kendi sorularınızı eklemek için aşağıdaki
- * QUIZ_QUESTIONS dizisini düzenleyin.
- * Her soru şu yapıya sahip olmalıdır:
+ * 
+ * Her soru şu yapıya sahip:
  * {
  *   question: "Soru metni",
  *   options: ["A şıkkı", "B şıkkı", "C şıkkı", "D şıkkı"],

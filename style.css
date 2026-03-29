@@ -1,6 +1,6 @@
 /* =====================================================
    AY'I KEŞFET — Main Stylesheet
-   Space & Moon Themed Turkish Website
+   Space & Moon Themed Website
    ===================================================== */
 
 /* ===== CSS Custom Properties (Design Tokens) ===== */
@@ -1833,13 +1833,7 @@ body {
 .progress-header {
   display: flex;
   flex-direction: column;
-  /* Öğeleri alt alta dizer */
   gap: 0.5rem;
-  /* İstersen aralarına biraz boşluk ekler */
-
-  /* justify-content: space-between;  -> Bu satır artık dikeyde etkili olur, 
-                                         eğer gerekmiyorsa silebilirsin. */
-
   color: var(--color-primary-light);
   font-family: var(--font-display);
   font-size: 0.9rem;

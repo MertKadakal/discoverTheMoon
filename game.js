@@ -182,7 +182,6 @@ function showTutorial() {
   }
   createRover();
 
-  // Removed AI name assignment
 
   uiMenu.style.display = "none";
   uiTutorial.style.display = "block";
@@ -289,6 +288,7 @@ function buildLandingWorld() {
 
 
 function selectGame(mode) {
+  closeLeaderboard();
   gameMode = mode;
   document.getElementById('game-hub-menu').style.display = 'none';
   if (mode === 'rover') {
@@ -374,34 +374,7 @@ async function showLeaderboard() {
   const modal = document.getElementById("leaderboard-modal");
   const content = document.getElementById("leaderboard-content");
   modal.style.display = "block";
-  content.innerHTML = "<p style='text-align:center;'>Veriler yükleniyor...</p>";
-
-  try {
-    if (typeof window.skorlariGetir === 'function') {
-      const querySnapshot = await window.skorlariGetir();
-      let html = `<table style="width:100%; border-collapse:collapse; color:white;">
-        <tr style="border-bottom:1px solid #444; color:#00ffcc;">
-          <th style="padding:10px; text-align:left;">Sıra</th>
-          <th style="padding:10px; text-align:left;">İsim</th>
-          <th style="padding:10px; text-align:right;">Puan</th>
-        </tr>`;
-      let rank = 1;
-      querySnapshot.forEach((data) => {
-        html += `<tr style="border-bottom:1px solid #222;">
-          <td style="padding:10px;">${rank++}</td>
-          <td style="padding:10px;">${data.name || "Anonim"}</td>
-          <td style="padding:10px; text-align:right;">${data.score}</td>
-        </tr>`;
-      });
-      html += `</table>`;
-      content.innerHTML = html;
-    } else {
-      content.innerHTML = "<p style='text-align:center; color:#ff4444;'>Veritabanı bağlantısı kurulamadı.</p>";
-    }
-  } catch (err) {
-    console.error(err);
-    content.innerHTML = "<p style='text-align:center; color:#ff4444;'>Hata oluştu.</p>";
-  }
+  content.innerHTML = "<p style='text-align:center;'>Lütfen seçim yapınız.</p>";
 }
 window.showLeaderboard = showLeaderboard;
 
@@ -641,8 +614,8 @@ function createBumpTexture() {
 function buildEnvironment() {
   createStars();
   createGround();
-  createRocket(); // Needs to be generated so we have the array initialized
-  generateObstaclesAndPath(); // Wait, rover needs navArrow later, so it's fine.
+  createRocket();
+  generateObstaclesAndPath();
   createRover();
 }
 
@@ -1484,7 +1457,7 @@ function handleAnswer(selectedIndex, correctIndex, btnElement, obstacle) {
         setTimeout(() => endGame(true), 1500);
       }
     } else {
-      // Landing Mode Fuel Gain (+10%)
+      // Landing Mode Fuel Gain (+40%)
       fuel = Math.min(100, fuel + 40);
       showQuizModal("Sistemler Yenilendi! +%40 Yakıt Kazandın.", false);
       updateLandingHUD();
@@ -1564,7 +1537,7 @@ function updateLandingMovement() {
     moved = true;
   }
 
-  // Dynamic Fuel Consumption (Each move consumes 0.05 units)
+  // Dynamic Fuel Consumption (Each move consumes 0.125 units)
   if (moved) {
     fuel -= 0.125;
     if (fuel <= 0) {
