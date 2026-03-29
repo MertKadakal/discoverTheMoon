@@ -68,10 +68,16 @@ let interactionRaycaster; // For mouse clicks if needed later
 let lastPlayerDirAngle = 0; // For rotating flashlight
 
 function startStationGame() {
+  const nameVal = document.getElementById("stationPlayerName").value.trim();
+  if (!nameVal) {
+    alert("Oyuna başlamadan önce 'Astronot Adı' girmeniz zorunludur!");
+    return;
+  }
+
   const btn = document.getElementById("startStationBtn");
   if (btn) btn.innerText = "Yükleniyor...";
 
-  sPlayer.name = document.getElementById("stationPlayerName").value.trim() || "Kaşif";
+  sPlayer.name = nameVal;
   sPlayer.gender = document.getElementById("stationGender").value;
   sPlayer.x = 0;
   sPlayer.z = 0;
@@ -1142,7 +1148,7 @@ function buildOddOutGame(c) {
     <p>GÜVENLİK ANOMALİSİ: Kameralardan sızan <b>gezegen olmayan</b> cismi seç!</p>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
         <div style="padding:20px; background:#000; border:2px solid #555; text-align:center; cursor:pointer;" onclick="makeMistake()">CAM 01: Merkür</div>
-        <div style="padding:20px; background:#000; border:2px solid #00ffcc; text-align:center; cursor:pointer; box-shadow:0 0 10px #00ffcc;" onclick="closeStationModal(true)">CAM 02: AY (Uydu)</div>
+        <div style="padding:20px; background:#000; border:2px solid #555; text-align:center; cursor:pointer; box-shadow:0 0 10px #555;" onclick="closeStationModal(true)">CAM 02: Ay</div>
         <div style="padding:20px; background:#000; border:2px solid #555; text-align:center; cursor:pointer;" onclick="makeMistake()">CAM 03: Venüs</div>
         <div style="padding:20px; background:#000; border:2px solid #555; text-align:center; cursor:pointer;" onclick="makeMistake()">CAM 04: Mars</div>
     </div>

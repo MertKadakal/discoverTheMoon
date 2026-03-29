@@ -563,7 +563,12 @@
         <h2 class="orbitron-title">Aya İniş</h2>
         <p>Meteordan kaç, yakıtını koru ve Ay'da mahsur kalan <b>Moncuk</b>'u kurtar!</p>
 
-        <button class="btn btn-accent btn-glow" id="startLandingBtn">Uçuşu Başlat</button>
+        <div class="customization-panel">
+          <label for="landingPlayerName">Pilot Adı:</label>
+          <input type="text" id="landingPlayerName" placeholder="Adını gir..." maxlength="15" />
+        </div>
+
+        <button class="btn btn-accent btn-glow" id="startLandingBtn" style="margin-top:1rem;">Uçuşu Başlat</button>
         <button class="btn btn-outline" onclick="backToHub()" style="margin-top:1rem;">Geri</button>
       </div>
 

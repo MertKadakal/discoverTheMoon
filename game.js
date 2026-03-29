@@ -72,13 +72,28 @@ document.addEventListener("DOMContentLoaded", () => {
   initThreeJS();
   buildEnvironment();
 
-  document.getElementById("start3DGameBtn").addEventListener("click", showTutorial);
+  document.getElementById("start3DGameBtn").addEventListener("click", () => {
+    if (!nameInput.value.trim()) {
+      alert("Oyuna başlamadan önce lütfen 'Kayıtlı İsim' giriniz!");
+      return;
+    }
+    showTutorial();
+  });
+  
   document.getElementById("skipTutorialBtn").addEventListener("click", startGame);
   document.getElementById("restartGameBtn").addEventListener("click", showMenu);
 
   // Hub buttons
   if (document.getElementById("startLandingBtn")) {
-    document.getElementById("startLandingBtn").addEventListener("click", startGame);
+    document.getElementById("startLandingBtn").addEventListener("click", () => {
+      let lName = document.getElementById("landingPlayerName");
+      if (lName && !lName.value.trim()) {
+        alert("Oyuna başlamadan önce lütfen 'Pilot Adı' giriniz!");
+        return;
+      }
+      if (lName && lName.value.trim()) username = lName.value.trim();
+      startGame();
+    });
   }
 
   window.addEventListener("keydown", (e) => handleKey(e.key.toLowerCase(), true));
@@ -156,7 +171,7 @@ function showMenu() {
 }
 
 function showTutorial() {
-  username = nameInput.value.trim() || "Kaşif";
+  username = nameInput.value.trim();
   roverColor = colorInput.value;
   accessoryType = accessoryInput ? accessoryInput.value : "none";
 
