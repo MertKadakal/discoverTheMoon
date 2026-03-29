@@ -1185,3 +1185,114 @@ function buildSimonGame(container) {
     };
   }
 }
+
+// 9. Interactive Wire Dragging (SVG) - Antonyms
+function buildAntonymGame(container) {
+  const pairs = [
+    { a: "Sıcak", b: "Soğuk", color: "#ff4444" },
+    { a: "Karanlık", b: "Aydınlık", color: "#4444ff" },
+    { a: "Ağır", b: "Hafif", color: "#00ffcc" }
+  ];
+  let left = pairs.map(p => ({ w: p.a, id: p.a, c: p.color })).sort(() => Math.random() - 0.5);
+  let right = pairs.map(p => ({ w: p.b, m: p.a, c: p.color })).sort(() => Math.random() - 0.5);
+
+  container.innerHTML = `
+    <div style="user-select: none; -webkit-user-select: none;"> 
+      <p style="margin-bottom:10px;">Filtreleri onarmak için kabloları ZIT ANLAMLI kelimelere sürükle:</p>
+      <div style="position:relative; width:100%; height:250px; background:rgba(0,0,0,0.6); border-radius:10px; border: 1px inset #555; overflow:hidden;">
+        <svg id="wireSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></svg>
+        <div id="sg-L" style="position:absolute; left:20px; top:20px; display:flex; flex-direction:column; gap:40px;"></div>
+        <div id="sg-R" style="position:absolute; right:20px; top:20px; display:flex; flex-direction:column; gap:40px;"></div>
+      </div>
+    </div>
+  `;
+
+  let svg = document.getElementById("wireSvg");
+  let matches = 0;
+  let activePort = null;
+  let currentLine = null;
+
+  left.forEach((n, i) => {
+    let port = document.createElement("div");
+    port.style = `display:flex; align-items:center; gap:10px; cursor:pointer;`;
+    port.innerHTML = `<span style="color:#fff; width:65px; pointer-events:none;">${n.w}</span><div class="port-b" style="width:20px; height:20px; border-radius:50%; background:${n.c}; box-shadow: 0 0 10px ${n.c}"></div>`;
+
+    port.querySelector('.port-b').onmousedown = (e) => {
+      if (port.getAttribute("data-disabled") === "true") return;
+
+      activePort = n;
+      currentLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      currentLine.setAttribute("stroke", n.c);
+      currentLine.setAttribute("stroke-width", "6");
+      currentLine.setAttribute("stroke-linecap", "round");
+
+      let rect = port.querySelector('.port-b').getBoundingClientRect();
+      let pRect = svg.getBoundingClientRect();
+
+      let startX = rect.left + rect.width / 2 - pRect.left;
+      let startY = rect.top + rect.height / 2 - pRect.top;
+
+      currentLine.setAttribute("x1", startX);
+      currentLine.setAttribute("y1", startY);
+      currentLine.setAttribute("x2", startX);
+      currentLine.setAttribute("y2", startY);
+      svg.appendChild(currentLine);
+
+      const move = (em) => {
+        let pRect = svg.getBoundingClientRect();
+        currentLine.setAttribute("x2", em.clientX - pRect.left);
+        currentLine.setAttribute("y2", em.clientY - pRect.top);
+      };
+
+      const up = (eu) => {
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", up);
+
+        let droppedOnRight = false;
+        let rightPorts = document.getElementById("sg-R").children;
+
+        for (let rp of rightPorts) {
+          let rRect = rp.querySelector('.port-b').getBoundingClientRect();
+          if (Math.hypot(eu.clientX - (rRect.left + 10), eu.clientY - (rRect.top + 10)) < 25) {
+            if (rp.dataset.match === activePort.id) {
+              rp.querySelector('.port-b').style.background = activePort.c;
+              rp.querySelector('.port-b').style.boxShadow = `0 0 10px ${activePort.c}`;
+              port.setAttribute("data-disabled", "true");
+              droppedOnRight = true;
+              matches++;
+
+              currentLine.setAttribute("x2", rRect.left + rRect.width / 2 - pRect.left);
+              currentLine.setAttribute("y2", rRect.top + rRect.height / 2 - pRect.top);
+
+              if (matches === pairs.length) {
+                setTimeout(() => { if (window.closeStationModal) closeStationModal(true); }, 500);
+              }
+              return;
+            } else {
+              if (window.makeMistake) makeMistake();
+              break;
+            }
+          }
+        }
+        if (!droppedOnRight && currentLine) {
+          currentLine.remove();
+        }
+        activePort = null;
+        currentLine = null;
+      };
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", up);
+    };
+
+    document.getElementById("sg-L").appendChild(port);
+  });
+
+  right.forEach((n, i) => {
+    let port = document.createElement("div");
+    port.dataset.match = n.m;
+    port.style = `display:flex; align-items:center; gap:10px;`;
+    port.innerHTML = `<div class="port-b" style="width:20px; height:20px; border-radius:50%; background:#444; border:2px solid #aaa;"></div><span style="color:#fff; width:65px; pointer-events:none;">${n.w}</span>`;
+    document.getElementById("sg-R").appendChild(port);
+  });
+}
