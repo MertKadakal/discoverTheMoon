@@ -289,6 +289,13 @@ function buildLandingWorld() {
 
 
 function selectGame(mode) {
+  // Mobil oyun engeli
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) {
+    alert("Uyarı: Bu 3 boyutlu uzay oyunları sadece bilgisayar (klavye ve fare) üzerinden oynanabilir. Lütfen deneyimi yaşamak için bilgisayardan giriş yapınız!");
+    return;
+  }
+
   gameMode = mode;
   document.getElementById('game-hub-menu').style.display = 'none';
   if (mode === 'rover') {
