@@ -112,7 +112,8 @@ body {
   height: 28px;
   border-radius: 50%;
   object-fit: cover;
-  transform: scale(1.1); /* Enlarge slightly to clip borders more */
+  transform: scale(1.1);
+  /* Enlarge slightly to clip borders more */
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
   animation: moonPulse 3s ease-in-out infinite;
 }
@@ -293,7 +294,8 @@ body {
   border-radius: 50%;
   background-color: #000;
   background-image: url('ay.jpg');
-  background-size: 115%; /* Increased to hide more white corners */
+  background-size: 115%;
+  /* Increased to hide more white corners */
   background-position: center;
   position: relative;
   box-shadow:

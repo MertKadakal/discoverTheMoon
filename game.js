@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     showTutorial();
   });
-  
+
   document.getElementById("skipTutorialBtn").addEventListener("click", startGame);
   document.getElementById("restartGameBtn").addEventListener("click", showMenu);
 
@@ -289,13 +289,6 @@ function buildLandingWorld() {
 
 
 function selectGame(mode) {
-  // Mobil oyun engeli
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-  if (isMobile) {
-    alert("Uyarı: Bu 3 boyutlu uzay oyunları sadece bilgisayar (klavye ve fare) üzerinden oynanabilir. Lütfen deneyimi yaşamak için bilgisayardan giriş yapınız!");
-    return;
-  }
-
   gameMode = mode;
   document.getElementById('game-hub-menu').style.display = 'none';
   if (mode === 'rover') {
@@ -1492,8 +1485,8 @@ function handleAnswer(selectedIndex, correctIndex, btnElement, obstacle) {
       }
     } else {
       // Landing Mode Fuel Gain (+10%)
-      fuel = Math.min(100, fuel + 25);
-      showQuizModal("Sistemler Yenilendi! +%25 Yakıt Kazandın.", false);
+      fuel = Math.min(100, fuel + 40);
+      showQuizModal("Sistemler Yenilendi! +%40 Yakıt Kazandın.", false);
       updateLandingHUD();
     }
   } else {
@@ -1573,7 +1566,7 @@ function updateLandingMovement() {
 
   // Dynamic Fuel Consumption (Each move consumes 0.05 units)
   if (moved) {
-    fuel -= 0.05;
+    fuel -= 0.125;
     if (fuel <= 0) {
       fuel = 0;
       triggerFuelQuiz();
