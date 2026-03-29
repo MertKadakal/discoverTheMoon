@@ -13,8 +13,6 @@
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <!-- Three.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
@@ -498,7 +496,36 @@
           <button class="btn btn-accent btn-glow" onclick="selectGame('landing')" style="margin-top:1rem;">
             🚀 Aya İniş Yap Moncuğu Kurtar
           </button>
+          <button class="btn btn-outline btn-glow" onclick="selectGame('station')" style="margin-top:1rem; border-color:#00ffcc; color:#00ffcc;">
+            🛰️ Uzay İstasyonunu Kurtar
+          </button>
         </div>
+        <button class="btn btn-outline" style="margin-top:2rem; width:100%;" onclick="showLeaderboard()">🏆 Liderlik Tablosu</button>
+      </div>
+
+      <!-- Quit Confirmation Modal -->
+      <div id="quit-confirm-modal" class="game-overlay-panel" style="display:none; z-index:5000; text-align:center; max-width:400px;">
+        <h2 style="color:#ffaa00;">Oyundan Çıkış</h2>
+        <p>Mevcut ilerlemeniz kaybolacak. Çıkmak istediğinize emin misiniz?</p>
+        <div style="display:flex; gap:20px; justify-content:center; margin-top:20px;">
+          <button class="btn btn-primary" onclick="confirmQuit(true)">Evet, Çık</button>
+          <button class="btn btn-outline" onclick="confirmQuit(false)">Hayır, Devam Et</button>
+        </div>
+      </div>
+
+      <!-- Leaderboard Modal -->
+      <div id="leaderboard-modal" class="game-overlay-panel" style="display:none; z-index:5000; max-width:620px; width:90%;">
+        <h2 class="orbitron-title" style="color:#00ffcc; text-align:center;">🏆 Liderlik Tablosu</h2>
+        <div style="display:flex; gap:10px; margin:15px 0; justify-content:center; flex-wrap:wrap;">
+          <button class="btn btn-outline" id="lb-tab-rover" style="font-size:12px; padding:6px 14px;" onclick="showGameLeaderboard('rover')">🚜 Rover</button>
+          <button class="btn btn-outline" id="lb-tab-landing" style="font-size:12px; padding:6px 14px;" onclick="showGameLeaderboard('landing')">🚀 Ay İnişi</button>
+          <button class="btn btn-outline" id="lb-tab-station" style="font-size:12px; padding:6px 14px;" onclick="showGameLeaderboard('station')">🛰️ İstasyon</button>
+          <button class="btn btn-outline" id="lb-tab-quiz" style="font-size:12px; padding:6px 14px;" onclick="showGameLeaderboard('quiz')">🧠 Bilgi Yarışması</button>
+        </div>
+        <div id="leaderboard-content" style="max-height:380px; overflow-y:auto; margin-top:5px;">
+          <p style="text-align:center; color:#888;">Yukarıdan bir oyun seçin...</p>
+        </div>
+        <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeLeaderboard()">Kapat</button>
       </div>
 
       <div id="ui-warning"
@@ -535,10 +562,28 @@
       <div id="landing-game-menu" class="game-overlay-panel" style="display:none;">
         <h2 class="orbitron-title">Aya İniş</h2>
         <p>Meteordan kaç, yakıtını koru ve Ay'da mahsur kalan <b>Moncuk</b>'u kurtar!</p>
-        <div class="stats-overview">
-          <p>❤️ 3 Can | ⚓ 3 Yanlış Hakkı</p>
-        </div>
+
         <button class="btn btn-accent btn-glow" id="startLandingBtn">Uçuşu Başlat</button>
+        <button class="btn btn-outline" onclick="backToHub()" style="margin-top:1rem;">Geri</button>
+      </div>
+
+      <!-- Station Game Menu -->
+      <div id="station-game-menu" class="game-overlay-panel" style="display:none;">
+        <h2 class="orbitron-title" style="color:#00ffcc;">İstasyon Görevi</h2>
+        <p>Uzay istasyonunda kritik arızalar var! 15 dakikan var. Tüm sistemleri tamir et ve istasyonu kurtar.</p>
+        
+        <div class="customization-panel">
+          <label for="stationPlayerName">Astronot Adı:</label>
+          <input type="text" id="stationPlayerName" placeholder="Adını gir..." maxlength="15" />
+
+          <label for="stationGender" style="margin-top:0.5rem;">Cinsiyet:</label>
+          <select id="stationGender" class="game-select">
+            <option value="erkek">Erkek 🧑‍🚀</option>
+            <option value="kadin">Kız 👩‍🚀</option>
+          </select>
+        </div>
+
+        <button class="btn btn-outline btn-glow" id="startStationBtn" style="border-color:#00ffcc; color:#00ffcc;">Görevi Başlat</button>
         <button class="btn btn-outline" onclick="backToHub()" style="margin-top:1rem;">Geri</button>
       </div>
 
@@ -557,13 +602,18 @@
 
       <!-- Gameplay HUD (Progress & Radar) -->
       <div id="gameplay-hud" style="display:none;">
-        <div
-          style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); pointer-events: auto; z-index: 1000; display: flex; gap: 10px;">
-          <button class="btn btn-outline" style="padding: 8px 20px; font-size: 16px; background: rgba(0,0,0,0.5);"
-            id="fsBtnRover" onclick="toggleFullscreen()">Tam Ekran</button>
-          <button class="btn btn-outline" style="padding: 8px 20px; font-size: 16px; background: rgba(0,0,0,0.5);"
-            onclick="quitGame()">Oyundan Çık</button>
+        <div style="position: absolute; top: 20px; right: 20px; pointer-events: auto; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-outline" style="padding: 8px 20px; font-size: 14px; background: rgba(0,0,0,0.5);"
+              id="fsBtnRover" onclick="toggleFullscreen()">Tam Ekran</button>
+            <button class="btn btn-outline" style="padding: 8px 20px; font-size: 14px; background: rgba(0,0,0,0.5);"
+              onclick="quitGame()">Oyundan Çık</button>
+          </div>
+          <div style="background:rgba(0,0,0,0.7); padding:5px 15px; border-radius:8px; border:1px solid #00ffcc; text-align:center;">
+            <p style="margin:0; font-family:monospace; font-size:18px; color:#00ffcc;">⏱️ <span id="roverTimer">00:00</span></p>
+          </div>
         </div>
+        
         <!-- Top Left: Mini-Map -->
         <div id="minimap-container" class="hud-minimap-container">
           <div class="minimap-grid" id="minimap-grid">
@@ -573,39 +623,108 @@
           </div>
         </div>
 
-
-
-        <!-- Top Right: Progress Bar -->
-        <div id="progress-container" class="hud-progress-container">
+        <!-- Progress Bar (below Top Left) -->
+        <div id="progress-container" class="hud-progress-container" style="left: 20px; top: 200px; right: auto; transform: none;">
           <div class="progress-header">
             <span id="progress-text-obs">Uzay Cisimleri Temizliği:</span>
             <span id="progress-text">İlerleme: 0 / 0</span>
           </div>
-          <div class="progress-track">
+          <div class="progress-track" style="width: 200px;">
             <div id="progress-fill" class="progress-fill"></div>
           </div>
         </div>
       </div>
 
       <!-- Gameplay HUD (Landing Mission) -->
-      <div id="landing-hud" style="display:none; position: absolute; top: 20px; right: 20px; pointer-events: none;">
-        <div
-          style="margin-bottom: 10px; pointer-events: auto; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
-          <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
-            id="fsBtnLanding" onclick="toggleFullscreen()">Tam Ekran</button>
-          <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
-            onclick="quitGame()">Oyundan Çık</button>
-        </div>
-        <div class="hud-progress-container">
-          <div class="progress-header" style="flex-direction: column; align-items: flex-end;">
-            <span>🚀 İniş Modu</span>
-            <span id="fuel-text">YAKIT: %100</span>
-            <span id="lives-text">❤️ 3 CAN</span>
+      <div id="landing-hud" style="display:none; position: absolute; top: 20px; right: 20px; pointer-events: none; width: 100%; height: 100%;">
+        <div style="position: absolute; right: 0; pointer-events: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
+              id="fsBtnLanding" onclick="toggleFullscreen()">Tam Ekran</button>
+            <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
+              onclick="quitGame()">Oyundan Çık</button>
           </div>
-          <div class="progress-track" style="width: 200px;">
-            <div id="fuel-fill" class="progress-fill" style="width: 100%; background: #4a90d9;"></div>
+          <div style="background:rgba(0,0,0,0.7); padding:5px 15px; border-radius:8px; border:1px solid #00ffcc; text-align:center;">
+            <p style="margin:0; font-family:monospace; font-size:18px; color:#00ffcc;">⏱️ <span id="landingTimer">00:00</span></p>
+          </div>
+          
+          <div class="hud-progress-container" style="position: relative; right: auto; top: auto;">
+            <div class="progress-header" style="flex-direction: column; align-items: flex-end;">
+              <span>🚀 İniş Modu</span>
+              <span id="fuel-text">YAKIT: %100</span>
+              <span id="lives-text">❤️ 3 CAN</span>
+            </div>
+            <div class="progress-track" style="width: 200px;">
+              <div id="fuel-fill" class="progress-fill" style="width: 100%; background: #4a90d9;"></div>
+            </div>
           </div>
         </div>
+      </div>
+
+      <!-- Station Game HUD -->
+      <div id="station-hud" style="display:none; position: absolute; top: 20px; left: 20px; right: 20px; pointer-events: none;">
+        
+        <div class="hud-left" style="pointer-events: auto; display: flex; flex-direction: column; gap: 10px;">
+          <div style="background:rgba(0,0,0,0.7); padding:10px; border-radius:8px; border:1px solid #ff4444; width: max-content;">
+            <p style="margin:0; color:#ff4444; font-size: 18px; font-weight: bold;" id="stationErrors">❤️ Can: 5/5</p>
+          </div>
+        </div>
+
+        <div class="hud-right" style="pointer-events: auto; position: absolute; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
+              id="fsBtnStation" onclick="toggleFullscreen()">Tam Ekran</button>
+            <button class="btn btn-outline" style="padding: 5px 15px; font-size: 14px; background: rgba(0,0,0,0.5);"
+              onclick="quitGame()">Oyundan Çık</button>
+          </div>
+
+          <div style="background:rgba(0,0,0,0.7); padding:5px 15px; border-radius:8px; border:1px solid #00ffcc; text-align:center;">
+            <p style="margin:0; font-family:'Courier New', monospace; font-size:24px; color:#00ffcc; text-shadow: 0 0 5px #00ffcc;">⏱️ <span id="stationTimer">15:00</span></p>
+          </div>
+
+          <div style="background:rgba(0,0,0,0.7); padding:10px; border-radius:8px; border:1px solid #aaa; max-height:250px; overflow-y:auto; scrollbar-width:thin; text-align: left; width: max-content;">
+            <h4 style="margin:0 0 5px 0; color:#fff;">Görevler:</h4>
+            <ul id="stationTaskList" style="margin:0; padding-left:20px; color:#ddd; font-size:14px;">
+              <li>Elektrik Paneli (0/1)</li>
+              <li>Radar Sistemi (0/1)</li>
+              <li>Oksijen Filtresi (0/1)</li>
+              <li>Kontrol Şifresi (0/1)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tutorial Overlay (Fades out) -->
+      <div id="station-tutorial-overlay" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; z-index:1500; text-align:center;">
+        <div style="background: rgba(0, 0, 0, 0.7); padding: 30px; border-radius: 20px; border: 2px solid #00ffcc; backdrop-filter: blur(10px); animation: pulseFloat 2s infinite;">
+          <h1 style="color: #00ffcc; margin:0 0 20px 0; text-shadow: 0 0 10px #00ffcc;">GÖREV BAŞLADI</h1>
+          <div style="display:flex; justify-content:center; gap:20px;">
+            <div style="text-align:center; color:#fff; font-size:18px;">
+              <span style="display:inline-block; padding:10px 15px; background:rgba(255,255,255,0.2); border-radius:8px; margin:5px; border:1px solid #fff;">W</span><br>
+              <span style="display:inline-block; padding:10px 15px; background:rgba(255,255,255,0.2); border-radius:8px; margin:5px; border:1px solid #fff;">A</span>
+              <span style="display:inline-block; padding:10px 15px; background:rgba(255,255,255,0.2); border-radius:8px; margin:5px; border:1px solid #fff;">S</span>
+              <span style="display:inline-block; padding:10px 15px; background:rgba(255,255,255,0.2); border-radius:8px; margin:5px; border:1px solid #fff;">D</span><br>
+              <p style="margin-top:10px; font-family:'Courier New', monospace;">HAREKET ET</p>
+            </div>
+            <div style="border-left: 2px dashed rgba(255,255,255,0.3); padding-left:20px; display:flex; flex-direction:column; justify-content:center; color:#fff; font-size:18px;">
+              <span style="display:inline-block; padding:15px; background:rgba(0,255,204,0.3); border-radius:8px; border:2px solid #00ffcc; margin:0 auto;">E / ENTER</span>
+              <p style="margin-top:15px; font-family:'Courier New', monospace;">ARIZALARI ONAR</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>@keyframes pulseFloat { 0%{transform:translateY(0); box-shadow:0 0 10px rgba(0,255,204,0.3);} 50%{transform:translateY(-10px); box-shadow:0 0 30px rgba(0,255,204,0.6);} 100%{transform:translateY(0); box-shadow:0 0 10px rgba(0,255,204,0.3);} }</style>
+
+      <!-- 3D Interaction Warning -->
+      <div id="ui-warning" style="display:none; position:absolute; top:70%; left:50%; transform:translate(-50%, -50%); color:#00ffcc; font-size:32px; font-weight:bold; text-shadow:0 0 15px #00ccaa; z-index:1000; pointer-events:none; background:rgba(0,0,0,0.5); padding:10px 20px; border-radius:10px; border:1px solid #00ffcc;"></div>
+
+      <!-- Station Game UI Overlay (for puzzles) -->
+      <div id="station-modal" class="game-overlay-panel" style="display:none; max-width:800px; width:95%; padding:3rem; pointer-events:auto; z-index:2000; background: rgba(8, 12, 25, 0.85); backdrop-filter: blur(15px); border: 2px solid rgba(0, 255, 204, 0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0, 255, 204, 0.1);">
+        <h2 id="station-modal-title" style="color:#00ffcc;">Sistem Arızası!</h2>
+        <div id="station-modal-content" style="margin-top:1rem; margin-bottom:1.5rem;">
+          <!-- Puzzle Content goes here -->
+        </div>
+        <button class="btn btn-outline" id="station-close-modal" style="display:none;">Kapat</button>
       </div>
 
       <!-- Minimal Quiz Overlay (Only shown during obstacles) -->
@@ -656,12 +775,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="quiz-data.js"></script>
   <script src="game.js"></script>
+  <script src="station-game.js"></script>
   <script src="main.js"></script>
 
   <!-- Firebase Setup -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDc86-g-z0NOnUH8zjAEdxXU7xYeiPC9QU",
@@ -672,46 +792,87 @@
       appId: "1:108438048144:web:c287d818c3c074c2177715"
     };
 
-    // Firebase başlat
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Diğer (module dışı) kodların bu fonksiyona erişebilmesi için window nesnesine atıyoruz
-    window.skorKaydet = async function (oyuncuAdi, puan) {
-      try {
-        const docRef = await addDoc(collection(db, "skorlar"), {
-          isim: oyuncuAdi,
-          skor: puan,
-          date: new Date()
-        });
-        console.log("Skor başarıyla kaydedildi! Firebase Doküman ID: ", docRef.id);
-
-        // Sağ üstte küçük bir bildirim çıkartılabilir
-        const btn = document.getElementById("firebase");
-        if (btn) btn.innerText = "Skorlar Kaydedildi!";
-      } catch (e) {
-        console.error("Firebase'e Veri eklenirken hata oluştu: ", e);
-      }
+    // Oyun türüne göre Firestore koleksiyon adı
+    function kolAdi(oyunTuru) {
+      if (oyunTuru === 'rover')   return 'rover_skorlar';
+      if (oyunTuru === 'landing') return 'landing_skorlar';
+      if (oyunTuru === 'station') return 'station_skorlar';
+      if (oyunTuru === 'quiz')    return 'quiz_skorlar';
+      return 'skorlar';
     }
 
-    window.skorlariGetir = async function () {
+    // Skor kaydet - oyunTuru: 'rover' | 'landing' | 'station' | 'quiz' | undefined
+    window.skorKaydet = async function (oyuncuAdi, puan, oyunTuru) {
       try {
-        const q = query(collection(db, "skorlar"), orderBy("skor", "desc"), limit(20));
-        const querySnapshot = await getDocs(q);
+        const kol = kolAdi(oyunTuru);
+        let finalName = oyuncuAdi ? oyuncuAdi.trim() : "";
+        if (!finalName || finalName.toLowerCase() === "kaşif" || finalName.toLowerCase() === "isimsiz") {
+           let isUnique = false;
+           let randStr = "";
+           while(!isUnique) {
+               randStr = "Misafir" + (Math.floor(Math.random() * 90000) + 10000);
+               const q = query(collection(db, kol), where("isim", "==", randStr));
+               const snap = await getDocs(q);
+               if(snap.empty) isUnique = true;
+           }
+           finalName = randStr;
+        }
+
+        const docRef = await addDoc(collection(db, kol), {
+          isim: finalName,
+          skor: puan,
+          oyun: oyunTuru || 'genel',
+          date: new Date()
+        });
+        console.log(`[${kol}] Skor kaydedildi:`, docRef.id);
+        if (typeof showToast === 'function') showToast('🏆 Skor kaydedildi!', 'success');
+        return finalName;
+      } catch (e) {
+        console.error("Firebase kayıt hatası:", e);
+        return oyuncuAdi;
+      }
+    };
+
+    // Belirli bir oyunun leaderboard'ını getir
+    window.skorlariGetirForGame = async function (oyunTuru) {
+      try {
+        const kol = kolAdi(oyunTuru);
+        const q = query(collection(db, kol), orderBy("skor", "desc"), limit(10));
+        const snap = await getDocs(q);
         const tablo = [];
-        querySnapshot.forEach((doc) => {
-          const veri = doc.data();
+        snap.forEach((doc) => {
+          const d = doc.data();
           tablo.push({
-            name: veri.isim || "İsimsiz",
-            score: veri.skor || 0,
-            date: veri.date && typeof veri.date.toDate === 'function' ? veri.date.toDate().toLocaleDateString('tr-TR') : ""
+            name:  d.isim || 'Anonim',
+            score: d.skor || 0,
+            date:  d.date && typeof d.date.toDate === 'function'
+                   ? d.date.toDate().toLocaleDateString('tr-TR') : ''
           });
         });
         return tablo;
       } catch (e) {
-        console.error("Firebase'den veriler çekilirken hata oluştu: ", e);
+        console.error("Firebase çekme hatası:", e);
         return [];
       }
+    };
+
+    // Eski fonksiyon - quiz leaderboard uyumluluğu
+    window.skorlariGetir = async function () {
+      try {
+        const q = query(collection(db, "skorlar"), orderBy("skor", "desc"), limit(20));
+        const snap = await getDocs(q);
+        const tablo = [];
+        snap.forEach((doc) => {
+          const d = doc.data();
+          tablo.push({ name: d.isim || 'İsimsiz', score: d.skor || 0,
+            date: d.date && typeof d.date.toDate === 'function'
+                  ? d.date.toDate().toLocaleDateString('tr-TR') : '' });
+        });
+        return tablo;
+      } catch (e) { return []; }
     };
   </script>
 </body>

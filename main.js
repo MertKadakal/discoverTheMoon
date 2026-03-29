@@ -410,17 +410,18 @@ async function saveAndShowLeaderboard() {
   // Fire off score to Firebase and wait for it to finish
   if(window.skorKaydet) {
     try {
-      await window.skorKaydet(playerName, currentScore);
+      const dbName = await window.skorKaydet(playerName, currentScore, 'quiz');
+      if (dbName) playerName = dbName;
     } catch (e) {
       console.error(e);
     }
   }
 
   let leaderboard = [];
-  if(window.skorlariGetir) {
-    leaderboard = await window.skorlariGetir();
+  if(window.skorlariGetirForGame) {
+    leaderboard = await window.skorlariGetirForGame('quiz');
   } else {
-    leaderboard.push({ name: playerName, score: currentScore, date: new Date().toLocaleDateString('tr-TR') });
+    leaderboard.push({ name: playerName || "Misafir", score: currentScore, date: new Date().toLocaleDateString('tr-TR') });
   }
 
   // Render leaderboard

@@ -13,10 +13,10 @@ let collidableMeshes = [];
 let roverSpotlight;
 let roverPropeller;
 let terrainMesh;
-let rocketTexture, meteorTexture;
 let collectedDebris = 0;
 let totalDebris = 9; // 3 junk, 3 samples, 3 rocks
 let landingEnviro = []; // Array to track space background items
+let moonLight; // Global for dynamic direction updates
 
 // Physics / Movement
 let velocityY = 0;
@@ -45,6 +45,9 @@ let meteors = [];
 let targetLandingX = 0;
 let targetLandingY = 0;
 const keys = { w: false, a: false, s: false, d: false, space: false };
+let gameTimerInterval = null;
+let gameTime = 0; // Cumulative seconds for current game session
+let isQuitting = false;
 
 // HUD fade timer
 let hudTimeout = null;
@@ -130,13 +133,18 @@ function showQuizModal(message, showOptions = false) {
 
 function showMenu() {
   isGameRunning = false;
+  uiMenu.style.display = "none";
+  document.getElementById("landing-game-menu").style.display = "none";
+  document.getElementById("station-game-menu").style.display = "none";
+
   if (gameMode === 'rover') {
     uiMenu.style.display = "block";
-    document.getElementById("landing-game-menu").style.display = "none";
-  } else {
-    uiMenu.style.display = "none";
+  } else if (gameMode === 'landing') {
     document.getElementById("landing-game-menu").style.display = "block";
+  } else if (gameMode === 'station') {
+    document.getElementById("station-game-menu").style.display = "block";
   }
+
   uiTutorial.style.display = "none";
   uiQuizModal.style.display = "none";
   uiResult.style.display = "none";
@@ -176,8 +184,11 @@ function startGame() {
   lives = 3;
   fuel = 100;
   collectedDebris = 0;
+  collectedDebris = 0;
   isGameRunning = true;
   isQuizActive = false;
+  gameTime = 0;
+  startGlobalTimer();
 
   // Clear scene of game objects
   clearGameObjects();
@@ -198,9 +209,13 @@ function startGame() {
     updateLandingHUD();
   }
 
-  // Force renderer resize because it might have initialized at 0x0
+  // Force renderer resize and re-append canvas if station game removed it
   const container = document.getElementById("game-canvas-container");
   if (renderer && container) {
+    if (!container.contains(renderer.domElement)) {
+      container.innerHTML = "";
+      container.appendChild(renderer.domElement);
+    }
     const rect = container.getBoundingClientRect();
     renderer.setSize(rect.width, rect.height);
     camera.aspect = rect.width / rect.height;
@@ -230,7 +245,10 @@ function clearGameObjects() {
 }
 
 function buildRoverWorld() {
-  if (scene) scene.fog = new THREE.FogExp2(0x050511, 0.0035);
+  if (scene) {
+    scene.background = new THREE.Color(0x000000);
+    scene.fog = new THREE.FogExp2(0x000000, 0.001);
+  }
 
   if (accessoryInput) accessoryType = accessoryInput.value;
   if (colorInput) roverColor = colorInput.value;
@@ -242,17 +260,28 @@ function buildRoverWorld() {
 }
 
 function buildLandingWorld() {
-  // Basic landing setup: Big Moon at distance, particles
+  // Set space background
+  if (scene) {
+    scene.background = new THREE.Color(0x000000);
+    scene.fog = null;
+  }
   createLandingScene();
+
+  // Position camera behind where rocket starts (0,0,0) looking forward
+  camera.position.set(0, 7, 30);
+  camera.lookAt(0, 0, -50);
 }
+
 
 function selectGame(mode) {
   gameMode = mode;
   document.getElementById('game-hub-menu').style.display = 'none';
   if (mode === 'rover') {
     document.getElementById('game-main-menu').style.display = 'block';
-  } else {
+  } else if (mode === 'landing') {
     document.getElementById('landing-game-menu').style.display = 'block';
+  } else if (mode === 'station') {
+    document.getElementById('station-game-menu').style.display = 'block';
   }
 }
 window.selectGame = selectGame; // Override main.js version to sync state
@@ -261,17 +290,156 @@ function backToHub() {
   isGameRunning = false;
   document.getElementById('game-main-menu').style.display = 'none';
   document.getElementById('landing-game-menu').style.display = 'none';
+  document.getElementById('station-game-menu').style.display = 'none';
   document.getElementById('game-hub-menu').style.display = 'block';
 }
 window.backToHub = backToHub;
 
 function quitGame() {
-  isGameRunning = false;
-  document.getElementById("gameplay-hud").style.display = "none";
-  document.getElementById("landing-hud").style.display = "none";
-  showMenu();
+  if (!isGameRunning && gameMode !== 'station') {
+    backToHub();
+    return;
+  }
+  isQuitting = true;
+  document.getElementById("quit-confirm-modal").style.display = "block";
 }
+
+function confirmQuit(yes) {
+  document.getElementById("quit-confirm-modal").style.display = "none";
+  if (yes) {
+    isGameRunning = false;
+    stopGlobalTimer();
+    if (window.stopStationGame) window.stopStationGame();
+
+    document.getElementById("gameplay-hud").style.display = "none";
+    document.getElementById("landing-hud").style.display = "none";
+    document.getElementById("station-hud").style.display = "none";
+
+    // Fade out tutorials or modals
+    uiQuizModal.style.display = "none";
+    uiResult.style.display = "none";
+
+    backToHub();
+  }
+  isQuitting = false;
+}
+window.confirmQuit = confirmQuit;
 window.quitGame = quitGame;
+
+function startGlobalTimer() {
+  stopGlobalTimer();
+  gameTimerInterval = setInterval(() => {
+    if (isGameRunning && !isQuizActive && !isQuitting) {
+      gameTime++;
+      updateTimerUI();
+    }
+  }, 1000);
+}
+
+function stopGlobalTimer() {
+  if (gameTimerInterval) clearInterval(gameTimerInterval);
+}
+
+function updateTimerUI() {
+  let m = Math.floor(gameTime / 60);
+  let s = gameTime % 60;
+  let timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+  if (gameMode === 'rover') {
+    let el = document.getElementById("roverTimer");
+    if (el) el.innerText = timeStr;
+  } else if (gameMode === 'landing') {
+    let el = document.getElementById("landingTimer");
+    if (el) el.innerText = timeStr;
+  }
+}
+
+// Liderlik Tablosu Logic
+async function showLeaderboard() {
+  const modal = document.getElementById("leaderboard-modal");
+  const content = document.getElementById("leaderboard-content");
+  modal.style.display = "block";
+  content.innerHTML = "<p style='text-align:center;'>Veriler yükleniyor...</p>";
+
+  try {
+    if (typeof window.skorlariGetir === 'function') {
+      const querySnapshot = await window.skorlariGetir();
+      let html = `<table style="width:100%; border-collapse:collapse; color:white;">
+        <tr style="border-bottom:1px solid #444; color:#00ffcc;">
+          <th style="padding:10px; text-align:left;">Sıra</th>
+          <th style="padding:10px; text-align:left;">İsim</th>
+          <th style="padding:10px; text-align:right;">Puan</th>
+        </tr>`;
+      let rank = 1;
+      querySnapshot.forEach((data) => {
+        html += `<tr style="border-bottom:1px solid #222;">
+          <td style="padding:10px;">${rank++}</td>
+          <td style="padding:10px;">${data.name || "Anonim"}</td>
+          <td style="padding:10px; text-align:right;">${data.score}</td>
+        </tr>`;
+      });
+      html += `</table>`;
+      content.innerHTML = html;
+    } else {
+      content.innerHTML = "<p style='text-align:center; color:#ff4444;'>Veritabanı bağlantısı kurulamadı.</p>";
+    }
+  } catch (err) {
+    console.error(err);
+    content.innerHTML = "<p style='text-align:center; color:#ff4444;'>Hata oluştu.</p>";
+  }
+}
+window.showLeaderboard = showLeaderboard;
+
+// Show per-game leaderboard with tab highlighting
+window.showGameLeaderboard = async function (gameType) {
+  const modal = document.getElementById("leaderboard-modal");
+  const content = document.getElementById("leaderboard-content");
+  modal.style.display = "block";
+  content.innerHTML = "<p style='text-align:center;'>Veriler y\u00fckleniyor...</p>";
+
+  // Highlight active tab
+  ['rover', 'landing', 'station', 'quiz'].forEach(t => {
+    const el = document.getElementById('lb-tab-' + t);
+    if (el) el.style.borderColor = t === gameType ? '#00ffcc' : '';
+  });
+
+  try {
+    if (typeof window.skorlariGetirForGame === 'function') {
+      const data = await window.skorlariGetirForGame(gameType);
+      if (!data.length) {
+        content.innerHTML = "<p style='text-align:center; color:#888;'>Hen\u00fcz skor yok!</p>";
+        return;
+      }
+      const medals = ['\ud83e\udd47', '\ud83e\udd48', '\ud83e\udd49'];
+      let html = `<table style="width:100%; border-collapse:collapse; color:white;">
+        <tr style="border-bottom:2px solid #00ffcc; color:#00ffcc;">
+          <th style="padding:10px; text-align:left;">S\u0131ra</th>
+          <th style="padding:10px; text-align:left;">\u0130sim</th>
+          <th style="padding:10px; text-align:right;">Puan</th>
+          <th style="padding:10px; text-align:right;">Tarih</th>
+        </tr>`;
+      data.forEach((d, i) => {
+        html += `<tr style="border-bottom:1px solid #222; ${i < 3 ? 'background:rgba(0,255,204,0.05);' : ''}">
+          <td style="padding:10px;">${medals[i] || '#' + (i + 1)}</td>
+          <td style="padding:10px; font-weight:${i < 3 ? 'bold' : 'normal'}">${d.name}</td>
+          <td style="padding:10px; text-align:right; color:#00ffcc; font-family:monospace;">${d.score}</td>
+          <td style="padding:10px; text-align:right; color:#888; font-size:12px;">${d.date}</td>
+        </tr>`;
+      });
+      html += '</table>';
+      content.innerHTML = html;
+    } else {
+      content.innerHTML = "<p style='text-align:center; color:#ff4444;'>Veritaban\u0131 ba\u011flant\u0131s\u0131 kurulamad\u0131.</p>";
+    }
+  } catch (e) {
+    content.innerHTML = "<p style='text-align:center; color:#ff4444;'>Hata olu\u015ftu.</p>";
+  }
+};
+
+function closeLeaderboard() {
+  document.getElementById("leaderboard-modal").style.display = "none";
+}
+window.closeLeaderboard = closeLeaderboard;
 
 function toggleFullscreen() {
   const elem = document.getElementById("games");
@@ -294,48 +462,96 @@ document.addEventListener('fullscreenchange', () => {
   const text = isFullscreen ? "Küçült" : "Tam Ekran";
   const btn1 = document.getElementById("fsBtnRover");
   const btn2 = document.getElementById("fsBtnLanding");
-  if(btn1) btn1.innerText = text;
-  if(btn2) btn2.innerText = text;
+  if (btn1) btn1.innerText = text;
+  if (btn2) btn2.innerText = text;
 });
 
 function endGame(won) {
   isGameRunning = false;
+  stopGlobalTimer();
   uiQuizModal.style.display = "none";
-  document.getElementById("gameplay-hud").style.display = "none";
-  document.getElementById("landing-hud").style.display = "none";
-  uiResult.style.display = "block";
 
   const heading = document.getElementById("result-heading");
   const desc = document.getElementById("result-description");
 
   if (won) {
-    heading.innerText = "Görev Tamamlandı!";
-    heading.style.color = "var(--color-success, #4CAF50)";
-
     if (gameMode === 'rover') {
-      desc.innerText = `Harika iş çıkardın ${username}! Tüm parçaları başarıyla topladın ve rokete yetiştin.`;
-    } else {
-      desc.innerText = `Muhteşem iniş! Moncuk'u başarıyla kurtardın. Moncuk şu an çok mutlu! 🧸✨`;
+      // Start Rover takeoff cinematic
+      startRoverTakeoff(() => {
+        document.getElementById("gameplay-hud").style.display = "none";
+        uiResult.style.display = "block";
+        heading.innerText = "TEBRİKLER!";
+        heading.style.color = "#00ffcc";
+        desc.innerText = `Harika iş çıkardın ${username}! Roverla beraber dünyaya doğru yola çıktın. Görev tamamlandı!`;
+        saveFinalScore();
+        isGameRunning = false;
+      });
+      return;
+    } else if (gameMode === 'landing') {
+      document.getElementById("landing-hud").style.display = "none";
+      uiResult.style.display = "block";
+      heading.innerText = "TEBRİKLER!";
+      heading.style.color = "#00ffcc";
+      desc.innerText = `Tebrikler, moncuk artık güvende! Onu başarıyla kurtardın!`;
+      saveFinalScore();
+      isGameRunning = false;
     }
-
-    velocityY = 1.0; // victory jump
-
-    // Scoring
-    let puan = (gameMode === 'rover') ? (collectedDebris * 100) : (lives * 500 + Math.floor(fuel) * 10);
-    if (window.skorKaydet) {
-      window.skorKaydet(username, puan);
-    }
-
   } else {
+    document.getElementById("gameplay-hud").style.display = "none";
+    document.getElementById("landing-hud").style.display = "none";
+    document.getElementById("station-hud").style.display = "none";
+    uiResult.style.display = "block";
     heading.innerText = "Görev Başarısız!";
-    heading.style.color = "var(--color-error, #f44336)";
-
+    heading.style.color = "#f44336";
     if (gameMode === 'rover') {
-      desc.innerText = `Görev başarısız ${username}. Tüm parçaları toplayıp sistemi onaramadın. Lütfen tekrar dene.`;
+      desc.innerText = `Süre doldu veya roket kalktı! Parçaları zamanında ulaştıramadın.`;
     } else {
       desc.innerText = lives <= 0 ? "Çok fazla çarpışma! Roket parçalandı." : "Sistem hatası. Moncuk kurtarılamadı.";
     }
   }
+} // end endGame
+
+
+function saveFinalScore() {
+  let puan = (gameMode === 'rover')
+    ? (collectedDebris * 1000 + Math.max(0, 1000 - gameTime))
+    : (lives * 1000 + Math.floor(fuel) * 20);
+  if (puan < 0) puan = 0;
+  const gameType = gameMode; // 'rover' or 'landing'
+  if (window.skorKaydet) {
+    window.skorKaydet(username, puan, gameType);
+  }
+}
+
+function startRoverTakeoff(callback) {
+  // Cinematic: Follow rocket
+  let startY = rocketGroup.position.y;
+  let liftOffHeight = 1000;
+  let duration = 3000; // 3 seconds
+  let startTime = performance.now();
+
+  // Attach rover to rocket
+  rocketGroup.add(roverGroup);
+  roverGroup.position.set(0, 0, 0); // Center inside/on rocket
+
+  function animateTakeoff(time) {
+    let elapsed = time - startTime;
+    let progress = Math.min(elapsed / duration, 1);
+
+    // Move rocket up
+    rocketGroup.position.y = startY + progress * liftOffHeight;
+
+    // Camera follows
+    camera.position.y = rocketGroup.position.y + 100;
+    camera.lookAt(rocketGroup.position);
+
+    if (progress < 1) {
+      requestAnimationFrame(animateTakeoff);
+    } else {
+      callback();
+    }
+  }
+  requestAnimationFrame(animateTakeoff);
 }
 
 // --- Three.js Setup & Graphics ---
@@ -347,42 +563,30 @@ function initThreeJS() {
     return;
   }
 
-  // Initialize Texture Loading here
   const textureLoader = new THREE.TextureLoader();
-  rocketTexture = textureLoader.load('rocket.png');
-  meteorTexture = textureLoader.load('meteor.png');
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x050511); // deep blue-black space
-  scene.fog = new THREE.FogExp2(0x050511, 0.0035); // Moodier fog
+  scene.background = new THREE.Color(0x000000);
+  scene.fog = new THREE.FogExp2(0x000000, 0.001);
 
   camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 3000);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Better shadows
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  // Lighting - Moodier realistic lighting with neon pops
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // low ambient
+  // Lighting - basic old state
+  const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
   scene.add(ambientLight);
 
-  const moonLight = new THREE.DirectionalLight(0xb0c4de, 0.8); // slight blueish moonlight
-  moonLight.position.set(200, 300, -200);
+  moonLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  moonLight.position.set(200, 500, 200);
   moonLight.castShadow = true;
-  moonLight.shadow.camera.left = -500;
-  moonLight.shadow.camera.right = 500;
-  moonLight.shadow.camera.top = 500;
-  moonLight.shadow.camera.bottom = -500;
-  moonLight.shadow.mapSize.width = 4096;
-  moonLight.shadow.mapSize.height = 4096;
-  moonLight.shadow.bias = -0.001;
+  moonLight.shadow.mapSize.width = 2048;
+  moonLight.shadow.mapSize.height = 2048;
   scene.add(moonLight);
-
-  // Distant galaxy glow to make things colorful
-  const galaxyHemiLight = new THREE.HemisphereLight(0xffaaff, 0x050511, 0.2);
-  scene.add(galaxyHemiLight);
 }
 
 function onWindowResize() {
@@ -441,6 +645,85 @@ function createStars() {
 
   starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
   scene.add(new THREE.Points(starGeo, starMats));
+}
+
+function addRoverWorldDecorations() {
+  const decorGroup = new THREE.Group();
+
+  // Create many decorative moon rocks and craters
+  const rockGeo = new THREE.DodecahedronGeometry(2);
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 1.0 });
+
+  const craterGeo = new THREE.TorusGeometry(8, 1, 8, 24);
+  const craterMat = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 1.0 });
+
+  for (let i = 0; i < 50; i++) {
+    // Rocks
+    let rx = (Math.random() - 0.5) * 1400;
+    let rz = (Math.random() - 0.5) * 3800;
+    let scale = Math.random() * 2 + 0.5;
+    let rock = new THREE.Mesh(rockGeo, rockMat);
+    rock.scale.set(scale, scale, scale);
+    rock.rotation.set(Math.random(), Math.random(), Math.random());
+    rock.position.set(rx, 0, rz);
+
+    // Position on terrain
+    if (terrainMesh) {
+      const origin = new THREE.Vector3(rx, 500, rz);
+      raycaster.set(origin, downVector);
+      const intersects = raycaster.intersectObject(terrainMesh);
+      if (intersects.length > 0) {
+        rock.position.y = intersects[0].point.y - 1;
+      }
+    }
+    rock.castShadow = true;
+    decorGroup.add(rock);
+
+    // Craters (every other iteration)
+    if (i % 2 === 0) {
+      let cx = (Math.random() - 0.5) * 1400;
+      let cz = (Math.random() - 0.5) * 3800;
+      let crater = new THREE.Mesh(craterGeo, craterMat);
+      crater.rotation.x = Math.PI / 2;
+      let cScale = Math.random() * 2 + 1;
+      crater.scale.set(cScale, cScale, cScale);
+      crater.position.set(cx, 0, cz);
+
+      if (terrainMesh) {
+        const originC = new THREE.Vector3(cx, 500, cz);
+        raycaster.set(originC, downVector);
+        const intersectsC = raycaster.intersectObject(terrainMesh);
+        if (intersectsC.length > 0) {
+          crater.position.y = intersectsC[0].point.y + 0.5; // Slightly above ground
+        }
+      }
+      decorGroup.add(crater);
+    }
+  }
+
+  // Abandoned equipment parts (visual only)
+  const equipmentMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8 });
+  const antenaGeo = new THREE.CylinderGeometry(0.2, 0.2, 10);
+  for (let i = 0; i < 5; i++) {
+    let ax = (Math.random() - 0.5) * 1200;
+    let az = (Math.random() - 0.5) * 3500;
+    let antenna = new THREE.Mesh(antenaGeo, equipmentMat);
+    antenna.rotation.z = Math.random() * 0.5 - 0.25;
+    antenna.rotation.x = Math.random() * 0.5 - 0.25;
+    antenna.position.set(ax, 0, az);
+
+    if (terrainMesh) {
+      const originA = new THREE.Vector3(ax, 500, az);
+      raycaster.set(originA, downVector);
+      const intersectsA = raycaster.intersectObject(terrainMesh);
+      if (intersectsA.length > 0) {
+        antenna.position.y = intersectsA[0].point.y + 5;
+      }
+    }
+    decorGroup.add(antenna);
+  }
+
+  scene.add(decorGroup);
 }
 
 function createGround() {
@@ -607,12 +890,10 @@ function createRover() {
   roverRadar = radarGroup; // save ref for animation
 
   // Headlights (Spotlights)
-  roverSpotlight = new THREE.SpotLight(0xffffee, 2, 80, Math.PI / 4, 0.5, 1);
-  roverSpotlight.position.set(0, 2, -2);
-  roverSpotlight.target.position.set(0, 0, -10);
-  roverSpotlight.castShadow = true;
-  roverGroup.add(roverSpotlight);
-  roverGroup.add(roverSpotlight.target);
+  roverSpotlight = new THREE.SpotLight(0xffffee, 5, 250, Math.PI / 5, 0.3, 1);
+  roverSpotlight.castShadow = false; // performance
+  scene.add(roverSpotlight);
+  scene.add(roverSpotlight.target);
 
   roverGroup.position.set(0, 5, 1800); // zpos 1800, xpos 0
   scene.add(roverGroup);
@@ -688,10 +969,8 @@ function createLandingScene() {
   scene.add(stars);
   landingEnviro.push(stars);
 
-  // Rocket Setup
-  const rocketMat = new THREE.SpriteMaterial({ map: rocketTexture });
-  landingRocket = new THREE.Sprite(rocketMat);
-  landingRocket.scale.set(6, 12, 1);
+  // Landing Rocket - removed as per design update
+  landingRocket = new THREE.Group(); // keep variable for compatibility (empty group)
   landingRocket.position.set(0, 0, 0);
   scene.add(landingRocket);
 
@@ -757,49 +1036,35 @@ function createMoncuk(x, z) {
 function spawnMeteor() {
   if (gameMode !== 'landing') return;
 
-  // Rastgele Engeller ve Asteroitler
-  if (Math.random() < 0.1) {
-    // Asteroit (Sprite)
-    const material = new THREE.SpriteMaterial({
-      map: meteorTexture,
-      color: 0xffffff
-    });
-    const meteor = new THREE.Sprite(material);
-    const size = 15 + Math.random() * 25;
-    meteor.scale.set(size, size, 1);
-    meteor.position.set(
-      landingRocket.position.x + (Math.random() - 0.5) * 200,
-      landingRocket.position.y + (Math.random() - 0.5) * 200,
-      landingRocket.position.z - 1000
-    );
-    scene.add(meteor);
-    meteors.push(meteor);
+  // Uzay Çöpü / Meteor (3D Mesh)
+  const isAsteroid = Math.random() < 0.3;
+
+  const mat = new THREE.MeshStandardMaterial({
+    color: isAsteroid ? 0x888888 : 0x555555,
+    roughness: 0.95,
+    metalness: 0.1
+  });
+
+  let geo;
+  if (isAsteroid) {
+    geo = new THREE.DodecahedronGeometry(8 + Math.random() * 8, 1);
   } else {
-    // Uzay Çöpü / Engel (3D Mesh)
-    // 1. Texture Loader oluştur
-    const loader = new THREE.TextureLoader();
-
-    // 2. Resim dosyasını yükle (path/to/your/texture.jpg kısmını kendi dosyanla değiştir)
-    const moonTexture = loader.load('meteor.png');
-
-    // 3. Materyali oluştur ve 'map' özelliğine ata
-    const mat = new THREE.MeshStandardMaterial({
-      map: moonTexture,           // Ana renk dokusu
-      emissive: 0xffffff,         // Hala hafif bir ışıma istersen kalabilir
-      roughness: 0.95,             // Ay yüzeyi mat olduğu için yüksek tut
-      metalness: 0.05              // Ay toprağı metalik değildir
-    });
-    const geo = new THREE.DodecahedronGeometry(5 + Math.random() * 5, 0); // sivri engeller
-    const junk = new THREE.Mesh(geo, mat);
-    junk.rotation.set(Math.random(), Math.random(), Math.random());
-    junk.position.set(
-      landingRocket.position.x + (Math.random() - 0.5) * 200,
-      landingRocket.position.y + (Math.random() - 0.5) * 200,
-      landingRocket.position.z - 1000
-    );
-    scene.add(junk);
-    meteors.push(junk);
+    geo = new THREE.DodecahedronGeometry(5 + Math.random() * 5, 0);
   }
+
+  const junk = new THREE.Mesh(geo, mat);
+  junk.rotation.set(Math.random(), Math.random(), Math.random());
+
+  const size = isAsteroid ? 20 : 10;
+
+  junk.position.set(
+    landingRocket.position.x + (Math.random() - 0.5) * 200,
+    landingRocket.position.y + (Math.random() - 0.5) * 200,
+    landingRocket.position.z - 1000
+  );
+
+  scene.add(junk);
+  meteors.push(junk);
 }
 
 // --- Collectible Objects (3 Junk, 3 Samples, 3 Rocks) ---
@@ -1072,6 +1337,34 @@ function updateRoverMovement() {
     }
   }
 
+  // Update spotlights to face movement direction
+  if (roverSpotlight && roverGroup) {
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(roverGroup.quaternion);
+    roverSpotlight.position.set(
+      roverGroup.position.x + fwd.x * 2,
+      roverGroup.position.y + 4,
+      roverGroup.position.z + fwd.z * 2
+    );
+    roverSpotlight.target.position.set(
+      roverGroup.position.x + fwd.x * 60,
+      roverGroup.position.y,
+      roverGroup.position.z + fwd.z * 60
+    );
+    roverSpotlight.target.updateMatrixWorld();
+  }
+
+  // Update directional light to cast shadows in front of rover
+  if (moonLight && roverGroup) {
+    const backDir = new THREE.Vector3(0, 0, 1).applyQuaternion(roverGroup.quaternion);
+    moonLight.position.set(
+      roverGroup.position.x + backDir.x * 300,
+      300,
+      roverGroup.position.z + backDir.z * 300
+    );
+    moonLight.target.position.copy(roverGroup.position);
+    moonLight.target.updateMatrixWorld();
+  }
+
   updateCamera();
 
   // Radar animation
@@ -1298,7 +1591,7 @@ function updateLandingMovement() {
   }
 
   // Victory: Reached Moon Surface
-  if (landingRocket.position.z < -1800) {
+  if (landingRocket.position.z < -1820) {
     endGame(true);
   }
 
