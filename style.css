@@ -617,6 +617,7 @@ body {
 
 .info-card.featured {
   grid-column: span 2;
+  margin-top: 2rem;
 }
 
 .card-icon {
