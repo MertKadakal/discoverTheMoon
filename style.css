@@ -107,8 +107,13 @@ body {
   cursor: pointer;
 }
 
-.moon-icon {
-  font-size: 1.5rem;
+.moon-icon-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  transform: scale(1.1); /* Enlarge slightly to clip borders more */
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
   animation: moonPulse 3s ease-in-out infinite;
 }
 
@@ -116,11 +121,11 @@ body {
 
   0%,
   100% {
-    filter: drop-shadow(0 0 6px rgba(200, 168, 75, 0.6));
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
   }
 
   50% {
-    filter: drop-shadow(0 0 16px rgba(200, 168, 75, 1));
+    filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.8));
   }
 }
 
@@ -286,19 +291,16 @@ body {
   width: clamp(250px, 35vw, 420px);
   height: clamp(250px, 35vw, 420px);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%,
-      #f5e6b0 0%,
-      #d4c068 20%,
-      #b89830 40%,
-      #8a7020 65%,
-      #5c4a10 85%,
-      #3a2e08 100%);
+  background-color: #000;
+  background-image: url('ay.jpg');
+  background-size: 115%; /* Increased to hide more white corners */
+  background-position: center;
   position: relative;
   box-shadow:
-    inset -40px -20px 80px rgba(0, 0, 0, 0.6),
-    inset 20px 30px 60px rgba(255, 220, 100, 0.2),
-    0 0 80px rgba(200, 168, 75, 0.3),
-    0 0 160px rgba(200, 168, 75, 0.1);
+    inset -40px -20px 80px rgba(0, 0, 0, 0.8),
+    inset 20px 30px 60px rgba(255, 255, 255, 0.15),
+    0 0 80px rgba(255, 255, 255, 0.2),
+    0 0 160px rgba(255, 255, 255, 0.05);
   animation: moonFloat 6s ease-in-out infinite;
   overflow: hidden;
 }
@@ -337,47 +339,7 @@ body {
   }
 }
 
-.crater {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), rgba(0, 0, 0, 0.4));
-  border: 1px solid rgba(0, 0, 0, 0.3);
-}
 
-.crater-1 {
-  width: 50px;
-  height: 50px;
-  top: 20%;
-  left: 25%;
-}
-
-.crater-2 {
-  width: 30px;
-  height: 30px;
-  top: 50%;
-  left: 60%;
-}
-
-.crater-3 {
-  width: 70px;
-  height: 70px;
-  top: 60%;
-  left: 20%;
-}
-
-.crater-4 {
-  width: 20px;
-  height: 20px;
-  top: 30%;
-  left: 65%;
-}
-
-.crater-5 {
-  width: 40px;
-  height: 40px;
-  top: 15%;
-  left: 55%;
-}
 
 /* Hero Content */
 .hero-content {
